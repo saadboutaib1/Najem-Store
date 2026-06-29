@@ -1,0 +1,101 @@
+import { ShoppingBag, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import BackButton from '../components/common/BackButton.jsx';
+import QuantityStepper from '../components/common/QuantityStepper.jsx';
+import { useCart } from '../context/CartContext.jsx';
+import { useLanguage } from '../context/LanguageContext.jsx';
+import { formatCurrency, getLocalizedField } from '../utils/formatters.js';
+
+export default function Cart() {
+  const {
+    items,
+    subtotal,
+    total,
+    clearCart,
+    removeFromCart,
+    increaseQuantity,
+    decreaseQuantity,
+  } = useCart();
+  const { language, t } = useLanguage();
+
+  if (items.length === 0) {
+    return (
+      <section className="page-section cart-page">
+        <div className="container empty-panel">
+          <ShoppingBag size={44} aria-hidden="true" />
+          <h1>{t('cart.emptyTitle')}</h1>
+          <p>{t('cart.emptyText')}</p>
+          <Link to="/products" className="button button--gold">
+            {t('common.continueShopping')}
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="page-section cart-page">
+      <div className="container section-heading">
+        <span className="eyebrow">Najem Store</span>
+        <h1>{t('cart.title')}</h1>
+        <div className="page-actions">
+          <BackButton fallbackTo="/products" />
+        </div>
+      </div>
+
+      <div className="container cart-layout">
+        <div className="cart-items">
+          {items.map((item) => (
+            <article className="cart-item" key={item.id}>
+              <img src={item.image} alt={getLocalizedField(item, 'name', language)} />
+              <div className="cart-item__content">
+                <h2>{getLocalizedField(item, 'name', language)}</h2>
+                <span>{formatCurrency(item.price, language)}</span>
+                <QuantityStepper
+                  value={item.quantity}
+                  max={item.stock}
+                  label={t('common.quantity')}
+                  increaseLabel={t('common.increaseQuantity')}
+                  decreaseLabel={t('common.decreaseQuantity')}
+                  onIncrease={() => increaseQuantity(item.id)}
+                  onDecrease={() => decreaseQuantity(item.id)}
+                />
+              </div>
+              <div className="cart-item__total">
+                <strong>{formatCurrency(item.price * item.quantity, language)}</strong>
+                <button
+                  type="button"
+                  className="icon-button icon-button--danger"
+                  onClick={() => removeFromCart(item.id)}
+                  aria-label={t('common.remove')}
+                >
+                  <Trash2 size={18} aria-hidden="true" />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <aside className="summary-panel">
+          <h2>{t('cart.summary')}</h2>
+          <div className="summary-row">
+            <span>{t('common.subtotal')}</span>
+            <strong>{formatCurrency(subtotal, language)}</strong>
+          </div>
+          <div className="summary-row summary-row--total">
+            <span>{t('common.total')}</span>
+            <strong>{formatCurrency(total, language)}</strong>
+          </div>
+          <p className="summary-note">{t('cart.deliveryNote')}</p>
+          <Link to="/checkout" className="button button--gold button--full">
+            {t('common.checkout')}
+          </Link>
+          <button type="button" className="button button--ghost button--full" onClick={clearCart}>
+            <Trash2 size={18} aria-hidden="true" />
+            {t('common.clearCart')}
+          </button>
+        </aside>
+      </div>
+    </section>
+  );
+}

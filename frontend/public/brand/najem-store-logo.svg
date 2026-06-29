@@ -1,0 +1,27 @@
+<svg width="720" height="240" viewBox="0 0 720 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Najem Store Logo</title>
+  <desc id="desc">A luxury oriental logo combining a gold star, perfume bottle, incense smoke, and Najem Store text.</desc>
+  <rect width="720" height="240" rx="0" fill="#0B0B0B"/>
+  <g transform="translate(68 34)">
+    <circle cx="86" cy="86" r="78" stroke="#C8A24A" stroke-width="3"/>
+    <circle cx="86" cy="86" r="62" stroke="#6B3F1D" stroke-width="2" opacity="0.75"/>
+    <path d="M86 22L98.4 62.6H140.4L106.3 87.8L119 128L86 103.1L53 128L65.7 87.8L31.6 62.6H73.6L86 22Z" fill="#C8A24A"/>
+    <path d="M69 96H103L111 143C111.9 148.5 107.6 153.5 102 153.5H70C64.4 153.5 60.1 148.5 61 143L69 96Z" fill="#0B0B0B" stroke="#C8A24A" stroke-width="3"/>
+    <path d="M75 84H97V99H75V84Z" fill="#0B0B0B" stroke="#C8A24A" stroke-width="3"/>
+    <path d="M79 74H93V84H79V74Z" fill="#C8A24A"/>
+    <path d="M131 42C119 55 119 66 131 78C143 90 141 104 128 117" stroke="#F7EFE2" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+    <path d="M44 45C56 57 56 68 44 80C32 92 34 105 47 118" stroke="#F7EFE2" stroke-width="4" stroke-linecap="round" opacity="0.62"/>
+    <path d="M86 116C96 116 103.5 123.5 103.5 133C103.5 142.5 96 148.5 86 148.5C76 148.5 68.5 142.5 68.5 133C68.5 123.5 76 116 86 116Z" fill="#7A1F1F" opacity="0.85"/>
+  </g>
+  <g transform="translate(238 73)">
+    <text x="0" y="48" fill="#F7EFE2" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="700" letter-spacing="1">Najem</text>
+    <text x="4" y="94" fill="#C8A24A" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="600" letter-spacing="8">STORE</text>
+    <path d="M4 116H300" stroke="#C8A24A" stroke-width="3" stroke-linecap="round"/>
+    <path d="M4 129H215" stroke="#6B3F1D" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(595 61)" opacity="0.95">
+    <path d="M32 0L38.4 20.7H60L42.5 33.5L49 54L32 41.4L15 54L21.5 33.5L4 20.7H25.6L32 0Z" fill="#C8A24A"/>
+    <path d="M32 74C44 86 44 99 32 112C20 99 20 86 32 74Z" stroke="#C8A24A" stroke-width="3" fill="none"/>
+    <path d="M12 126H52" stroke="#C8A24A" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,38 @@
+export const categories = [
+  {
+    id: 'oud',
+    slug: 'oud',
+    name_ar: 'العود',
+    name_en: 'Oud',
+    description_ar: 'قطع عود مختارة بروائح عميقة تناسب المجالس والهدايا الفاخرة.',
+    description_en: 'Selected oud pieces with deep aromas, ideal for gatherings and premium gifts.',
+    image: '/categories/oud.svg',
+  },
+  {
+    id: 'bakhoor',
+    slug: 'bakhoor',
+    name_ar: 'البخور',
+    name_en: 'Bakhoor',
+    description_ar: 'خلطات بخور شرقية تمنح البيت لمسة ضيافة دافئة وراقية.',
+    description_en: 'Oriental bakhoor blends that bring a warm, elegant sense of hospitality to your home.',
+    image: '/categories/bakhoor.svg',
+  },
+  {
+    id: 'perfumes',
+    slug: 'perfumes',
+    name_ar: 'العطور',
+    name_en: 'Perfumes',
+    description_ar: 'عطور تجمع بين النفحات العربية والأناقة اليومية.',
+    description_en: 'Perfumes that combine Arabic notes with everyday elegance.',
+    image: '/categories/perfumes.svg',
+  },
+  {
+    id: 'miswak',
+    slug: 'miswak',
+    name_ar: 'المسواك',
+    name_en: 'Miswak',
+    description_ar: 'مسواك طبيعي مناسب للاستخدام اليومي والعناية الشخصية.',
+    description_en: 'Carefully selected natural miswak for daily use and personal care.',
+    image: '/categories/miswak.svg',
+  },
+];
