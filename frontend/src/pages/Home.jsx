@@ -114,9 +114,9 @@ export default function Home() {
           <h2>{t('home.categoriesTitle')}</h2>
           <p>{t('home.categoriesSubtitle')}</p>
         </div>
-        <div className="container category-grid">
-          {catalogStatus.isLoading && <p className="empty-state">{loadingText}</p>}
-          {catalogStatus.error && <p className="empty-state">{catalogStatus.error}</p>}
+        {catalogStatus.isLoading && <div className="catalog-loading" role="status" aria-label={loadingText} />}
+        {!catalogStatus.isLoading && catalogStatus.error && <p className="catalog-notice">{catalogStatus.error}</p>}
+        <div className="container category-grid" aria-busy={catalogStatus.isLoading}>
           {categories.map((category) => (
             <CategoryCard key={category.id} category={category} />
           ))}
@@ -124,22 +124,21 @@ export default function Home() {
       </section>
 
       {(catalogStatus.isLoading || featuredProducts.length > 0) && (
-        <section className="section">
+        <section className="section home-featured-section">
           <div className="container section-heading">
             <span className="eyebrow">NAJEM STORE</span>
             <h2>{t('home.featuredTitle')}</h2>
             <p>{t('home.featuredSubtitle')}</p>
           </div>
-          <div className="container product-grid">
-            {catalogStatus.isLoading && <p className="empty-state">{loadingFeaturedText}</p>}
-            {!catalogStatus.isLoading &&
-              featuredProducts.slice(0, 4).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+          {catalogStatus.isLoading && <div className="catalog-loading" role="status" aria-label={loadingFeaturedText} />}
+          <div className="container product-grid home-featured-grid" aria-busy={catalogStatus.isLoading}>
+            {featuredProducts.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
           {!catalogStatus.isLoading && featuredProducts.length > 0 && (
-            <div className="container page-actions">
-              <Link to="/products" className="button button--outline">
+            <div className="container page-actions home-featured-actions">
+              <Link to="/products" className="button button--gold">
                 {t('home.viewAllProducts')}
               </Link>
             </div>

@@ -47,9 +47,9 @@ export default function Categories() {
         <h1>{t('categories.title')}</h1>
         <p>{t('categories.subtitle')}</p>
       </div>
-      <div className="container category-grid">
-        {catalogStatus.isLoading && <p className="empty-state">{loadingText}</p>}
-        {catalogStatus.error && <p className="empty-state">{catalogStatus.error}</p>}
+      {catalogStatus.isLoading && <div className="catalog-loading" role="status" aria-label={loadingText} />}
+      {!catalogStatus.isLoading && catalogStatus.error && <p className="catalog-notice">{catalogStatus.error}</p>}
+      <div className="container category-grid" aria-busy={catalogStatus.isLoading}>
         {categories.map((category) => (
           <CategoryCard key={category.id} category={category} />
         ))}

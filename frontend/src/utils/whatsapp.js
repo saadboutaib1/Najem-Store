@@ -1,12 +1,12 @@
 import { STORE_CONFIG } from '../config/store.js';
-import { getLocalizedField } from './formatters.js';
+import { formatCurrency, getLocalizedField } from './formatters.js';
 
 function sanitizeWhatsAppNumber(phoneNumber = '') {
   return phoneNumber.replace(/[^\d]/g, '');
 }
 
-function formatAmount(value, currency) {
-  return `${Number(value || 0)} ${currency || STORE_CONFIG.currency}`;
+function formatAmount(value, currency, language) {
+  return formatCurrency(value, language, currency || STORE_CONFIG.currency);
 }
 
 export function buildWhatsAppMessage({
@@ -26,10 +26,10 @@ export function buildWhatsAppMessage({
       const lineTotal = item.price * item.quantity;
 
       if (isArabic) {
-        return `${index + 1}. ${productName} × ${item.quantity} = ${formatAmount(lineTotal, currency)}`;
+        return `${index + 1}. ${productName} × ${item.quantity} = ${formatAmount(lineTotal, currency, language)}`;
       }
 
-      return `${index + 1}. ${productName} × ${item.quantity} = ${formatAmount(lineTotal, currency)}`;
+      return `${index + 1}. ${productName} × ${item.quantity} = ${formatAmount(lineTotal, currency, language)}`;
     })
     .join('\n');
 
@@ -49,9 +49,9 @@ export function buildWhatsAppMessage({
 
 ${productLines}
 
-المجموع الفرعي: ${formatAmount(subtotal, currency)}
-رسوم التوصيل: ${formatAmount(deliveryFee, currency)}
-المجموع الكلي: ${formatAmount(total, currency)}
+المجموع الفرعي: ${formatAmount(subtotal, currency, language)}
+رسوم التوصيل: ${formatAmount(deliveryFee, currency, language)}
+المجموع الكلي: ${formatAmount(total, currency, language)}
 
 طريقة الدفع: الدفع عند الاستلام`;
   }
@@ -71,9 +71,9 @@ Products:
 
 ${productLines}
 
-Subtotal: ${formatAmount(subtotal, currency)}
-Delivery fee: ${formatAmount(deliveryFee, currency)}
-Total: ${formatAmount(total, currency)}
+Subtotal: ${formatAmount(subtotal, currency, language)}
+Delivery fee: ${formatAmount(deliveryFee, currency, language)}
+Total: ${formatAmount(total, currency, language)}
 
 Payment method: Cash on Delivery`;
 }

@@ -49,7 +49,7 @@ const ar = {
     categoriesTitle: 'تسوّق حسب القسم',
     categoriesSubtitle: 'اختيارات راقية للبيت والهدايا والمناسبات.',
     featuredTitle: 'منتجات مختارة',
-    featuredSubtitle: 'اكتشف بعض المنتجات المميزة من Najem Store.',
+    featuredSubtitle: 'اكتشف منتجات مختارة بعناية من متجر Najem Store',
     viewAllProducts: 'عرض كل المنتجات',
     whyTitle: 'لماذا Najem Store؟',
     whySubtitle: 'تجربة شراء واضحة، ومنتجات مختارة، وتواصل سريع عبر واتساب.',

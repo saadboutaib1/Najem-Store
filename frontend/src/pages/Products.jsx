@@ -155,15 +155,18 @@ export default function Products() {
         </div>
       </div>
 
-      <div className="container product-grid">
-        {catalogStatus.isLoading && <p className="empty-state">{loadingText}</p>}
-        {catalogStatus.error && <p className="empty-state">{catalogStatus.error}</p>}
+      {catalogStatus.isLoading && <div className="catalog-loading" role="status" aria-label={loadingText} />}
+      {!catalogStatus.isLoading && catalogStatus.error && <p className="catalog-notice">{catalogStatus.error}</p>}
+
+      <div className="container product-grid" aria-busy={catalogStatus.isLoading}>
         {paginatedProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
-      {filteredProducts.length === 0 && <p className="empty-state">{t('products.empty')}</p>}
-      {filteredProducts.length > PRODUCTS_PER_PAGE && (
+      {!catalogStatus.isLoading && filteredProducts.length === 0 && (
+        <p className="empty-state">{t('products.empty')}</p>
+      )}
+      {!catalogStatus.isLoading && filteredProducts.length > PRODUCTS_PER_PAGE && (
         <nav className="pagination" aria-label={t('products.paginationLabel')}>
           <button
             type="button"
