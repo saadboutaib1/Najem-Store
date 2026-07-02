@@ -46,3 +46,21 @@ export function formatCurrency(value, language = 'ar', currency = STORE_CONFIG.c
 export function getLocalizedField(item, field, language) {
   return item[`${field}_${language}`] || item[`${field}_ar`] || item[`${field}_en`] || '';
 }
+
+export function formatStock(stock, language = 'ar') {
+  const count = Number(stock || 0);
+
+  if (count <= 0) {
+    return language === 'ar' ? 'نفد المخزون' : 'Out of stock';
+  }
+
+  try {
+    const formattedCount = new Intl.NumberFormat(language === 'ar' ? 'ar-MA' : 'en-MA', {
+      maximumFractionDigits: 0,
+    }).format(count);
+
+    return language === 'ar' ? `المخزون: ${formattedCount}` : `Stock: ${formattedCount}`;
+  } catch {
+    return language === 'ar' ? `المخزون: ${count}` : `Stock: ${count}`;
+  }
+}

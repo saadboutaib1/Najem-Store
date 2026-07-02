@@ -7,13 +7,13 @@ import { useCart } from '../context/CartContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { useStoreData } from '../context/StoreDataContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { formatCurrency, getLocalizedField } from '../utils/formatters.js';
+import { formatCurrency, formatStock, getLocalizedField } from '../utils/formatters.js';
 import {
   getCategoryBySlug,
   getProductById,
 } from '../services/catalogService.js';
-import { getProduct as getApiProduct } from '../services/api.js';
-import { adaptProduct } from '../utils/adapters.js';
+import { ApiError, getProduct as getApiProduct } from '../services/api.js';
+import { adaptProduct, getProductImageFallback } from '../utils/adapters.js';
 import NotFound from './NotFound.jsx';
 
 export default function ProductDetails() {
@@ -25,10 +25,10 @@ export default function ProductDetails() {
   const { showToast } = useToast();
   const { language, t } = useLanguage();
   const { settings } = useStoreData();
-  const loadingText = language === 'ar' ? 'جاري تحميل المنتج...' : 'Loading product...';
+  const loadingText = language === 'ar' ? 'جارٍ تحميل المنتج...' : 'Loading product...';
   const offlineText =
     language === 'ar'
-      ? 'تعذر الاتصال بالخادم حاليا، يتم عرض بيانات محلية مؤقتة.'
+      ? 'تعذر الاتصال بالخادم حاليًا، يتم عرض بيانات محلية مؤقتة.'
       : 'Backend is offline right now, local demo data is shown.';
 
   useEffect(() => {
@@ -42,8 +42,14 @@ export default function ProductDetails() {
         if (!isMounted) return;
         setProduct(adaptProduct(apiProduct));
         setProductStatus({ isLoading: false, error: '' });
-      } catch {
+      } catch (error) {
         if (!isMounted) return;
+        if (error instanceof ApiError && error.status > 0) {
+          setProduct(null);
+          setProductStatus({ isLoading: false, error: '' });
+          return;
+        }
+
         const fallbackProduct = getProductById(productId);
         setProduct(fallbackProduct);
         setProductStatus({
@@ -78,9 +84,14 @@ export default function ProductDetails() {
 
   const category = getCategoryBySlug(product.category);
   const productName = getLocalizedField(product, 'name', language);
+  const stockText = formatStock(product.stock, language);
   const handleAddToCart = () => {
     addToCart(product, quantity);
     showToast(t('common.addedToCart'));
+  };
+  const handleImageError = (event) => {
+    event.currentTarget.onerror = null;
+    event.currentTarget.src = getProductImageFallback(product.category);
   };
 
   return (
@@ -90,7 +101,7 @@ export default function ProductDetails() {
 
         <div className="product-detail">
           <div className="product-detail__media">
-            <img src={product.image} alt={productName} />
+            <img src={product.image} alt={productName} onError={handleImageError} />
           </div>
           <div className="product-detail__content">
             <span className="eyebrow">
@@ -98,7 +109,7 @@ export default function ProductDetails() {
             </span>
             <h1>{productName}</h1>
             <span className={`stock ${product.stock > 0 ? 'stock--in' : 'stock--out'}`}>
-              {product.stock > 0 ? t('common.inStock') : t('common.outOfStock')}
+              {stockText}
             </span>
             {productStatus.error && <p className="form-error">{productStatus.error}</p>}
             <p>{getLocalizedField(product, 'description', language)}</p>

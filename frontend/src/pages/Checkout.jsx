@@ -1,10 +1,11 @@
 import { MessageCircle, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BackButton from '../components/common/BackButton.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { useStoreData } from '../context/StoreDataContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import { createOrder } from '../services/api.js';
 import { getBackendProductId } from '../utils/adapters.js';
 import { reconcileCartItemsFromBackend } from '../utils/cartReconciliation.js';
@@ -26,16 +27,18 @@ export default function Checkout() {
   const [cartRefreshMessage, setCartRefreshMessage] = useState('');
   const [isRefreshingCart, setIsRefreshingCart] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { items, subtotal, replaceCartItems } = useCart();
+  const { items, subtotal, replaceCartItems, clearCart } = useCart();
   const { language, t } = useLanguage();
   const { settings } = useStoreData();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
   const deliveryFee = settings.deliveryFee;
   const total = subtotal + deliveryFee;
   const orderErrorMessage =
     language === 'ar'
       ? 'تعذر إنشاء الطلب في الخادم. يرجى المحاولة مرة أخرى.'
       : 'Could not create the order on the backend. Please try again.';
-  const submittingText = language === 'ar' ? 'جاري إنشاء الطلب...' : 'Creating order...';
+  const submittingText = language === 'ar' ? 'جارٍ إنشاء الطلب...' : 'Creating order...';
   const needsCartRefresh = items.some((item) => !getBackendProductId(item));
 
   const updateField = (field, value) => {
@@ -117,19 +120,38 @@ export default function Checkout() {
       });
 
       const order = response.data || {};
+      const orderNumber = response.order_number || order.order_number;
+      const orderSubtotal = Number(order.subtotal ?? subtotal);
+      const orderDeliveryFee = Number(order.delivery_fee ?? deliveryFee);
+      const orderTotal = Number(order.total ?? total);
       const whatsappUrl = createWhatsAppOrderUrl({
-        orderNumber: response.order_number || order.order_number,
+        orderNumber,
         customer: form,
         items: checkoutItems,
-        subtotal: Number(order.subtotal ?? subtotal),
-        deliveryFee: Number(order.delivery_fee ?? deliveryFee),
-        total: Number(order.total ?? total),
+        subtotal: orderSubtotal,
+        deliveryFee: orderDeliveryFee,
+        total: orderTotal,
         language,
         currency: settings.currency,
         whatsappNumber: settings.whatsappNumber,
       });
+      const successState = {
+        orderNumber,
+        subtotal: orderSubtotal,
+        deliveryFee: orderDeliveryFee,
+        total: orderTotal,
+      };
 
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      try {
+        sessionStorage.setItem('najem-last-order', JSON.stringify(successState));
+      } catch {
+        // Session storage is optional; the success page can still render from route state.
+      }
+      clearCart();
+      setForm(initialForm);
+      showToast(t('checkout.orderSuccess'));
+      navigate('/order-success', { replace: true, state: successState });
     } catch {
       setError(orderErrorMessage);
     } finally {

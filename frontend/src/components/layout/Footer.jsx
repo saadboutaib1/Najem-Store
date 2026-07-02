@@ -1,16 +1,39 @@
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Logo from '../common/Logo.jsx';
 import SocialLinks from '../common/SocialLinks.jsx';
 import { useLanguage } from '../../context/LanguageContext.jsx';
-import { getCategories } from '../../services/catalogService.js';
+import { getCategories as getFallbackCategories } from '../../services/catalogService.js';
+import { getCategories as getApiCategories } from '../../services/api.js';
+import { adaptCategories } from '../../utils/adapters.js';
 import { getLocalizedField } from '../../utils/formatters.js';
 
 export default function Footer() {
   const { language, t } = useLanguage();
   const { pathname, search } = useLocation();
-  const categories = getCategories();
+  const [categories, setCategories] = useState(getFallbackCategories);
   const activeCategory = new URLSearchParams(search).get('category');
   const isCartActive = pathname === '/cart' || pathname === '/checkout';
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getApiCategories()
+      .then((apiCategories) => {
+        if (isMounted) {
+          setCategories(adaptCategories(apiCategories));
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setCategories(getFallbackCategories());
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <footer className="site-footer">

@@ -56,6 +56,21 @@ function isSameProduct(firstProduct, secondProduct) {
   );
 }
 
+function isSameProductReference(item, productReference) {
+  if (productReference && typeof productReference === 'object') {
+    return isSameProduct(item, productReference);
+  }
+
+  const reference = String(productReference || '');
+
+  return Boolean(
+    reference &&
+      (String(item?.id || '') === reference ||
+        String(item?.backendId || '') === reference ||
+        getProductSlug(item) === reference)
+  );
+}
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState(getInitialCart);
 
@@ -90,24 +105,26 @@ export function CartProvider({ children }) {
     });
   };
 
-  const removeFromCart = (productId) => {
-    setItems((currentItems) => currentItems.filter((item) => item.id !== productId));
+  const removeFromCart = (productReference) => {
+    setItems((currentItems) =>
+      currentItems.filter((item) => !isSameProductReference(item, productReference))
+    );
   };
 
-  const increaseQuantity = (productId) => {
+  const increaseQuantity = (productReference) => {
     setItems((currentItems) =>
       currentItems.map((item) =>
-        item.id === productId
+        isSameProductReference(item, productReference)
           ? { ...item, quantity: clampQuantity(item.quantity + 1, item.stock) }
           : item
       )
     );
   };
 
-  const decreaseQuantity = (productId) => {
+  const decreaseQuantity = (productReference) => {
     setItems((currentItems) =>
       currentItems.map((item) =>
-        item.id === productId
+        isSameProductReference(item, productReference)
           ? { ...item, quantity: Math.max(1, item.quantity - 1) }
           : item
       )

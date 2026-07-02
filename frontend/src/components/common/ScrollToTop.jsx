@@ -28,6 +28,10 @@ export default function ScrollToTop() {
         return;
       }
 
+      if (trigger.closest('[data-no-scroll-top="true"]')) {
+        return;
+      }
+
       window.setTimeout(() => {
         window.requestAnimationFrame(() => scrollToPageTop('smooth'));
       }, 0);

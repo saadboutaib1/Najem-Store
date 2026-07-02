@@ -5,7 +5,8 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useStoreData } from '../../context/StoreDataContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { getCategoryBySlug } from '../../services/catalogService.js';
-import { formatCurrency, getLocalizedField } from '../../utils/formatters.js';
+import { getProductImageFallback } from '../../utils/adapters.js';
+import { formatCurrency, formatStock, getLocalizedField } from '../../utils/formatters.js';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -14,23 +15,34 @@ export default function ProductCard({ product }) {
   const { settings } = useStoreData();
   const productName = getLocalizedField(product, 'name', language);
   const isAvailable = product.stock > 0;
+  const stockText = formatStock(product.stock, language);
   const category = getCategoryBySlug(product.category);
+  const categoryLabel =
+    product[`category_name_${language}`] ||
+    product.category_name_ar ||
+    product.category_name_en ||
+    (category ? getLocalizedField(category, 'name', language) : '');
 
   const handleAddToCart = () => {
     addToCart(product);
     showToast(t('common.addedToCart'));
   };
 
+  const handleImageError = (event) => {
+    event.currentTarget.onerror = null;
+    event.currentTarget.src = getProductImageFallback(product.category);
+  };
+
   return (
     <article className="product-card">
       <Link to={`/products/${product.id}`} className="product-card__image-link">
-        <img src={product.image} alt={productName} className="product-card__image" />
+        <img src={product.image} alt={productName} className="product-card__image" onError={handleImageError} />
       </Link>
       <div className="product-card__body">
         <div className="product-card__meta">
-          {category && (
+          {categoryLabel && (
             <span className="product-card__category">
-              {getLocalizedField(category, 'name', language)}
+              {categoryLabel}
             </span>
           )}
         </div>
@@ -46,7 +58,7 @@ export default function ProductCard({ product }) {
             )}
           </div>
           <span className={`stock ${isAvailable ? 'stock--in' : 'stock--out'}`}>
-            {isAvailable ? t('common.inStock') : t('common.outOfStock')}
+            {stockText}
           </span>
         </div>
         <button

@@ -5,13 +5,13 @@ import QuantityStepper from '../components/common/QuantityStepper.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { useStoreData } from '../context/StoreDataContext.jsx';
+import { getProductImageFallback } from '../utils/adapters.js';
 import { formatCurrency, getLocalizedField } from '../utils/formatters.js';
 
 export default function Cart() {
   const {
     items,
     subtotal,
-    total,
     clearCart,
     removeFromCart,
     increaseQuantity,
@@ -19,6 +19,10 @@ export default function Cart() {
   } = useCart();
   const { language, t } = useLanguage();
   const { settings } = useStoreData();
+  const handleImageError = (item) => (event) => {
+    event.currentTarget.onerror = null;
+    event.currentTarget.src = getProductImageFallback(item.category);
+  };
 
   if (items.length === 0) {
     return (
@@ -49,7 +53,11 @@ export default function Cart() {
         <div className="cart-items">
           {items.map((item) => (
             <article className="cart-item" key={item.id}>
-              <img src={item.image} alt={getLocalizedField(item, 'name', language)} />
+              <img
+                src={item.image}
+                alt={getLocalizedField(item, 'name', language)}
+                onError={handleImageError(item)}
+              />
               <div className="cart-item__content">
                 <h2>{getLocalizedField(item, 'name', language)}</h2>
                 <span>{formatCurrency(item.price, language, settings.currency)}</span>
@@ -59,8 +67,8 @@ export default function Cart() {
                   label={t('common.quantity')}
                   increaseLabel={t('common.increaseQuantity')}
                   decreaseLabel={t('common.decreaseQuantity')}
-                  onIncrease={() => increaseQuantity(item.id)}
-                  onDecrease={() => decreaseQuantity(item.id)}
+                  onIncrease={() => increaseQuantity(item)}
+                  onDecrease={() => decreaseQuantity(item)}
                 />
               </div>
               <div className="cart-item__total">
@@ -68,7 +76,7 @@ export default function Cart() {
                 <button
                   type="button"
                   className="icon-button icon-button--danger"
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item)}
                   aria-label={t('common.remove')}
                 >
                   <Trash2 size={18} aria-hidden="true" />
@@ -85,8 +93,8 @@ export default function Cart() {
             <strong>{formatCurrency(subtotal, language, settings.currency)}</strong>
           </div>
           <div className="summary-row summary-row--total">
-            <span>{t('common.total')}</span>
-            <strong>{formatCurrency(total, language, settings.currency)}</strong>
+            <span>{t('cart.totalBeforeDelivery')}</span>
+            <strong>{formatCurrency(subtotal, language, settings.currency)}</strong>
           </div>
           <p className="summary-note">{t('cart.deliveryNote')}</p>
           <Link to="/checkout" className="button button--gold button--full">

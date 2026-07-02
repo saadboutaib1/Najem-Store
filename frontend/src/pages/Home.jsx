@@ -39,12 +39,12 @@ export default function Home() {
       text: t('home.whyItems.trustText'),
     },
   ];
-  const loadingText = language === 'ar' ? 'جاري تحميل الأقسام...' : 'Loading categories...';
+  const loadingText = language === 'ar' ? 'جارٍ تحميل الأقسام...' : 'Loading categories...';
   const loadingFeaturedText =
-    language === 'ar' ? 'جاري تحميل المنتجات المختارة...' : 'Loading featured products...';
+    language === 'ar' ? 'جارٍ تحميل المنتجات المختارة...' : 'Loading featured products...';
   const offlineText =
     language === 'ar'
-      ? 'تعذر الاتصال بالخادم حاليا، يتم عرض بيانات محلية مؤقتة.'
+      ? 'تعذر الاتصال بالخادم حاليًا، يتم عرض بيانات محلية مؤقتة.'
       : 'Backend is offline right now, local demo data is shown.';
 
   useEffect(() => {

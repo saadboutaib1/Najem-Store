@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { STORE_CONFIG } from '../config/store.js';
 import { getSettings, getSocialLinks } from '../services/api.js';
 
@@ -55,49 +55,48 @@ const fallbackSettings = normalizeSettings();
 const fallbackSocialLinks = normalizeSocialLinks([], fallbackSettings);
 
 export function StoreDataProvider({ children }) {
+  const isMountedRef = useRef(false);
   const [settings, setSettings] = useState(fallbackSettings);
   const [socialLinks, setSocialLinks] = useState(fallbackSocialLinks);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    let isMounted = true;
+  const refreshStoreData = useCallback(async () => {
+    setIsLoading(true);
 
-    async function loadStoreData() {
-      setIsLoading(true);
+    const [settingsResult, socialLinksResult] = await Promise.allSettled([
+      getSettings(),
+      getSocialLinks(),
+    ]);
 
-      const [settingsResult, socialLinksResult] = await Promise.allSettled([
-        getSettings(),
-        getSocialLinks(),
-      ]);
+    if (!isMountedRef.current) return;
 
-      if (!isMounted) return;
+    const nextSettings =
+      settingsResult.status === 'fulfilled'
+        ? normalizeSettings(settingsResult.value)
+        : fallbackSettings;
+    const nextSocialLinks =
+      socialLinksResult.status === 'fulfilled'
+        ? normalizeSocialLinks(socialLinksResult.value, nextSettings)
+        : normalizeSocialLinks([], nextSettings);
 
-      const nextSettings =
-        settingsResult.status === 'fulfilled'
-          ? normalizeSettings(settingsResult.value)
-          : fallbackSettings;
-      const nextSocialLinks =
-        socialLinksResult.status === 'fulfilled'
-          ? normalizeSocialLinks(socialLinksResult.value, nextSettings)
-          : normalizeSocialLinks([], nextSettings);
-
-      setSettings(nextSettings);
-      setSocialLinks(nextSocialLinks);
-      setError(
-        settingsResult.status === 'rejected' || socialLinksResult.status === 'rejected'
-          ? 'Store settings are using local fallback values.'
-          : ''
-      );
-      setIsLoading(false);
-    }
-
-    loadStoreData();
-
-    return () => {
-      isMounted = false;
-    };
+    setSettings(nextSettings);
+    setSocialLinks(nextSocialLinks);
+    setError(
+      settingsResult.status === 'rejected' || socialLinksResult.status === 'rejected'
+        ? 'Store settings are using local fallback values.'
+        : ''
+    );
+    setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    refreshStoreData();
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [refreshStoreData]);
 
   const value = useMemo(
     () => ({
@@ -105,12 +104,13 @@ export function StoreDataProvider({ children }) {
       socialLinks,
       isLoading,
       error,
+      refreshStoreData,
       getWhatsAppUrl: (message = '') => {
         const baseUrl = buildWhatsAppLink(settings.whatsappNumber);
         return message ? `${baseUrl}?text=${encodeURIComponent(message)}` : baseUrl;
       },
     }),
-    [error, isLoading, settings, socialLinks]
+    [error, isLoading, refreshStoreData, settings, socialLinks]
   );
 
   return <StoreDataContext.Provider value={value}>{children}</StoreDataContext.Provider>;

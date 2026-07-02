@@ -1,6 +1,6 @@
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import Pagination from '../components/common/Pagination.jsx';
 import ProductCard from '../components/common/ProductCard.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import { getLocalizedField } from '../utils/formatters.js';
@@ -18,7 +18,7 @@ import { adaptCategories, adaptProducts } from '../utils/adapters.js';
 const PRODUCTS_PER_PAGE = 8;
 
 export default function Products() {
-  const { language, direction, t } = useLanguage();
+  const { language, t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,12 +30,10 @@ export default function Products() {
     selectedCategory === 'all'
       ? null
       : categories.find((category) => category.slug === selectedCategory);
-  const PreviousIcon = direction === 'rtl' ? ChevronRight : ChevronLeft;
-  const NextIcon = direction === 'rtl' ? ChevronLeft : ChevronRight;
-  const loadingText = language === 'ar' ? 'جاري تحميل المنتجات...' : 'Loading products...';
+  const loadingText = language === 'ar' ? 'جارٍ تحميل المنتجات...' : 'Loading products...';
   const offlineText =
     language === 'ar'
-      ? 'تعذر الاتصال بالخادم حاليا، يتم عرض بيانات محلية مؤقتة.'
+      ? 'تعذر الاتصال بالخادم حاليًا، يتم عرض بيانات محلية مؤقتة.'
       : 'Backend is offline right now, local demo data is shown.';
 
   const filteredProducts = useMemo(() => {
@@ -48,21 +46,15 @@ export default function Products() {
     const start = (activePage - 1) * PRODUCTS_PER_PAGE;
     return filteredProducts.slice(start, start + PRODUCTS_PER_PAGE);
   }, [activePage, filteredProducts]);
-  const pageNumbers = useMemo(() => {
-    if (totalPages <= 5) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    const start = Math.max(1, Math.min(activePage - 2, totalPages - 4));
-    return Array.from({ length: 5 }, (_, index) => start + index);
-  }, [activePage, totalPages]);
-  const pageStatus = t('products.pageStatus')
-    .replace('{current}', activePage)
-    .replace('{total}', totalPages);
-
   useEffect(() => {
     setCurrentPage(1);
   }, [language, searchTerm, selectedCategory]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   useEffect(() => {
     let isMounted = true;
@@ -126,7 +118,6 @@ export default function Products() {
 
       <div className="container product-toolbar">
         <div className="search-box">
-          <Search size={19} aria-hidden="true" />
           <input
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
@@ -166,46 +157,13 @@ export default function Products() {
       {!catalogStatus.isLoading && filteredProducts.length === 0 && (
         <p className="empty-state">{t('products.empty')}</p>
       )}
-      {!catalogStatus.isLoading && filteredProducts.length > PRODUCTS_PER_PAGE && (
-        <nav className="pagination" aria-label={t('products.paginationLabel')}>
-          <button
-            type="button"
-            className="pagination__button"
-            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-            disabled={activePage === 1}
-            aria-label={t('products.previous')}
-          >
-            <PreviousIcon size={17} aria-hidden="true" />
-            <span>{t('products.previous')}</span>
-          </button>
-
-          <div className="pagination__pages">
-            {pageNumbers.map((page) => (
-              <button
-                key={page}
-                type="button"
-                className={page === activePage ? 'pagination__page pagination__page--active' : 'pagination__page'}
-                onClick={() => setCurrentPage(page)}
-                aria-current={page === activePage ? 'page' : undefined}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
-
-          <span className="pagination__status">{pageStatus}</span>
-
-          <button
-            type="button"
-            className="pagination__button"
-            onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-            disabled={activePage === totalPages}
-            aria-label={t('products.next')}
-          >
-            <span>{t('products.next')}</span>
-            <NextIcon size={17} aria-hidden="true" />
-          </button>
-        </nav>
+      {!catalogStatus.isLoading && (
+        <Pagination
+          page={activePage}
+          pageSize={PRODUCTS_PER_PAGE}
+          totalItems={filteredProducts.length}
+          onPageChange={setCurrentPage}
+        />
       )}
     </section>
   );

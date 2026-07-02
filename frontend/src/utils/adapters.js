@@ -12,6 +12,14 @@ const productImages = {
   miswak: '/products/miswak.svg',
 };
 
+export function getCategoryImageFallback(slug = 'oud') {
+  return categoryImages[slug] || categoryImages.oud;
+}
+
+export function getProductImageFallback(categorySlug = 'oud') {
+  return productImages[categorySlug] || productImages.oud;
+}
+
 function normalizeNumber(value, fallback = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
@@ -34,7 +42,7 @@ export function adaptCategory(category = {}) {
     name_en: category.name_en || category.name || category.name_ar || '',
     description_ar: category.description_ar || '',
     description_en: category.description_en || category.description_ar || '',
-    image: category.image || categoryImages[slug] || '/categories/oud.svg',
+    image: category.image || getCategoryImageFallback(slug),
     status: category.status ?? 'active',
   };
 }
@@ -51,6 +59,8 @@ export function adaptProduct(product = {}) {
     slug: product.slug || String(productId),
     category: categorySlug,
     category_slug: categorySlug,
+    category_name_ar: product.category_name_ar || product.category?.name_ar || '',
+    category_name_en: product.category_name_en || product.category?.name_en || product.category_name_ar || '',
     name_ar: product.name_ar || product.name || '',
     name_en: product.name_en || product.name || product.name_ar || '',
     description_ar: product.description_ar || '',
@@ -58,7 +68,7 @@ export function adaptProduct(product = {}) {
     price: normalizeNumber(product.price),
     oldPrice: oldPrice ? normalizeNumber(oldPrice) : null,
     stock: normalizeNumber(product.stock),
-    image: product.image || product.main_image || productImages[categorySlug] || '/products/oud.svg',
+    image: product.image || product.main_image || getProductImageFallback(categorySlug),
     rating: normalizeNumber(product.rating, 5),
     isFeatured: Boolean(product.isFeatured ?? product.is_featured),
     status: product.status ?? 'active',

@@ -106,12 +106,24 @@ class OrderService
     private function generateOrderNumber(): string
     {
         $year = now()->format('Y');
-        $count = Order::query()
+        $prefix = "NS-{$year}-";
+        $maxSequence = Order::query()
             ->where('order_number', 'like', "NS-{$year}-%")
             ->lockForUpdate()
-            ->count() + 1;
+            ->pluck('order_number')
+            ->map(function (string $orderNumber) use ($prefix): int {
+                return (int) str_replace($prefix, '', $orderNumber);
+            })
+            ->max() ?? 0;
 
-        return sprintf('NS-%s-%04d', $year, $count);
+        $nextSequence = $maxSequence + 1;
+
+        do {
+            $orderNumber = sprintf('NS-%s-%04d', $year, $nextSequence);
+            $nextSequence++;
+        } while (Order::query()->where('order_number', $orderNumber)->exists());
+
+        return $orderNumber;
     }
 
     private function buildWhatsAppMessage(Order $order): string
