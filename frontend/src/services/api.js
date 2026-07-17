@@ -53,7 +53,7 @@ async function request(endpoint, options = {}) {
       return payload;
     }
 
-    return payload?.data ?? payload;
+    return payload?.data?.data ?? payload?.data ?? payload;
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;

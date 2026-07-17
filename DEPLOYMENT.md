@@ -73,7 +73,7 @@ Use these settings:
 - Build command: `npm run build`
 - Output directory: `dist`
 
-`frontend/vercel.json` keeps `/api/*` for serverless functions and rewrites non-API routes to `/index.html` for React Router refresh support.
+`frontend/vercel.json` keeps `/api/*` for serverless functions and rewrites non-API routes to `/index.html` for React Router refresh support. The app manifest is local at `/manifest.webmanifest`. Use the production domain, `https://maghrib-oud.vercel.app`, for final PWA testing; Vercel preview/protected deployments may request a Vercel SSO manifest, which is allowed only by the narrow `manifest-src` CSP entry for `https://vercel.com`.
 
 ## 6. Deployment Steps
 

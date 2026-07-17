@@ -63,6 +63,7 @@ function isFormData(body) {
 function normalizeAdminProfile(profile) {
   return profile?.admin || profile;
 }
+
 function prepareMutationPayload(data, method = 'PUT') {
   if (!isFormData(data)) {
     return { method, body: data };
@@ -131,7 +132,7 @@ async function adminRequest(endpoint, options = {}) {
       throw new AdminApiError(message, response.status, payload?.errors || payload);
     }
 
-    return raw ? payload : payload?.data ?? payload;
+    return raw ? payload : payload?.data?.data ?? payload?.data ?? payload;
   } catch (error) {
     if (error instanceof AdminApiError) {
       throw error;
