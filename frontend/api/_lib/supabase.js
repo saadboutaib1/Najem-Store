@@ -1,4 +1,4 @@
-﻿import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -324,12 +324,15 @@ function signPayload(payload) {
   return crypto.createHmac('sha256', getTokenSecret()).update(payload).digest('base64url');
 }
 
-export function createAdminToken(admin) {
+export function createAdminToken(admin = {}) {
+  const subject = admin.id || admin.sub || 'env-admin';
   const payload = Buffer.from(
     JSON.stringify({
-      sub: admin.id,
+      sub: subject,
       email: admin.email,
+      name: admin.name || 'MAGHRIB OUD Admin',
       role: admin.role || 'admin',
+      source: admin.source || (String(subject) === 'env-admin' ? 'env' : 'supabase'),
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
     })
   ).toString('base64url');
@@ -371,6 +374,24 @@ export async function requireAdmin(req) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   const tokenData = verifyAdminToken(token);
+
+  if (String(tokenData.sub) === 'env-admin') {
+    const adminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+    const tokenEmail = String(tokenData.email || '').trim().toLowerCase();
+
+    if (!adminEmail || tokenEmail !== adminEmail || tokenData.role !== 'admin') {
+      throw new ApiRouteError('Admin account is not authorized.', 401);
+    }
+
+    return {
+      id: 'env-admin',
+      name: tokenData.name || 'MAGHRIB OUD Admin',
+      email: adminEmail,
+      role: 'admin',
+      status: 'active',
+    };
+  }
+
   const supabase = getSupabaseAdmin();
   const { data: admin, error } = await supabase
     .from('admins')
