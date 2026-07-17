@@ -1,7 +1,0 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-
-    # InfinityFree keeps htdocs as the web root. This simulates a Laravel
-    # document root that points to the public directory.
-    RewriteRule ^(.*)$ public/$1 [L]
-</IfModule>

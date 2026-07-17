@@ -24,11 +24,7 @@
   ],
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://maghrib-oud.infinityfree.me/api/:path*"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!api/.*).*)",
       "destination": "/index.html"
     }
   ]

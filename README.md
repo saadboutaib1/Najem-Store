@@ -1,107 +1,77 @@
 # MAGHRIB OUD
 
-MAGHRIB OUD is a full-stack web store for a Moroccan oriental products brand. The project includes a public storefront, a Laravel API, and an admin dashboard for managing the catalog, orders, store settings, promotions, loyalty points, and social links.
+MAGHRIB OUD is an e-commerce PWA for a Moroccan oriental products brand. The production app now runs as a Vercel project with React/Vite on the frontend, Vercel Serverless API functions, and Supabase Postgres for data.
 
-The store is designed around a simple flow: customers browse products, add items to the cart, send the order through WhatsApp, and pay on delivery.
+The public store keeps the same customer flow: browse products, add items to the cart, send the order through WhatsApp, and pay on delivery. The admin dashboard manages products, categories, orders, store settings, promotions, loyalty points, and social links.
+
+## Production Architecture
+
+- Frontend: Vercel, root directory `frontend`
+- API backend: Vercel Serverless Functions in `frontend/api`
+- Database: Supabase Postgres
+- Storage: current seed images use public frontend assets; Supabase Storage can be added later for persistent uploaded media
+- Legacy reference: `backend/` keeps the previous Laravel API code for reference only and is not used for production hosting
 
 ## Key Features
 
 ### Storefront
 
-- Public store built with React and Vite.
+- React + Vite public store.
 - Arabic, French, and English language support.
 - RTL/LTR layout handling across the store and dashboard.
 - Responsive layout for desktop, tablet, and mobile.
-- Home page with video background and a clear WhatsApp ordering flow.
+- Home page with video background and WhatsApp ordering flow.
 - Category browsing, product listing, search, product details, cart, checkout, and order success pages.
-- Fixed WhatsApp button connected to the number saved in the dashboard.
+- Fixed WhatsApp button connected to the number saved in settings.
 - Privacy policy, about page, contact page, and social links.
 - Public loyalty page where customers can check points by phone number.
-- Copy is kept general so the store remains correct when categories are added or removed from the dashboard.
 
 ### Promotions and Loyalty
 
-- Configurable "Buy 2" offer from the admin dashboard.
+- Configurable Buy 2 offer from the admin dashboard.
 - Offer supports date range, discount type, and discount value.
-- Discount is calculated in the cart, checkout, WhatsApp message, and backend order total.
+- Discount is calculated in cart, checkout, WhatsApp message, and API order total.
 - Loyalty points can be enabled or disabled from settings.
 - Points are linked to the customer's phone number.
 - Points are awarded when an order status becomes delivered.
-- Rewards are calculated from dashboard settings.
 
 ### Admin Dashboard
 
-- Secure admin login using Laravel Sanctum.
+- Admin login through the Vercel API.
+- Signed admin token stored by the existing dashboard session flow.
 - Dashboard overview for products, categories, orders, and delivered revenue.
-- Product management with Arabic, French, and English names/descriptions.
-- Category management with Arabic, French, and English names/descriptions.
+- Product and category CRUD with Arabic, French, and English fields.
 - Product status, stock, old price, featured products, and image management.
-- Product and category image upload, change, and remove actions.
 - Order management with status updates and saved WhatsApp message preview.
-- Order statuses integrated with the loyalty points logic.
 - Store settings for WhatsApp number, delivery fee, default language, promotions, loyalty rules, and social links.
 - Admin profile page with password update.
 
-### Backend API
-
-- Laravel API for public store data and admin operations.
-- JSON API responses with request validation.
-- Database seeders for default settings, admin account, categories, products, and social links.
-- Image storage through Laravel public storage.
-- Public settings endpoint used by the frontend for WhatsApp, currency, delivery fee, promotions, and loyalty rules.
-
 ## Tech Stack
 
-### Frontend
+### Production
 
 - React 18
 - Vite
 - React Router
-- Context API
-- lucide-react
-- CSS
+- Vercel Serverless Functions
+- Supabase Postgres
+- Supabase JavaScript client
+- bcryptjs for admin password hashes
 
-### Backend
+### Legacy Reference
 
-- Laravel 12
-- PHP 8.2+
-- Laravel Sanctum
-- MySQL
-- PHPUnit
+- Laravel backend remains in `backend/` as reference only.
 
 ## Project Structure
 
 ```text
 Maghrib-Oud/
-  frontend/   React storefront and admin interface
-  backend/    Laravel API, migrations, seeders, storage, and tests
-  docs/       Project notes and supporting documentation
+  frontend/   React storefront, admin interface, and Vercel API functions
+  backend/    Legacy Laravel API reference
+  docs/       Supabase schema and deployment documentation
 ```
 
-## Local Setup
-
-### 1. Create the Database
-
-```sql
-CREATE DATABASE maghrib_oud CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-### 2. Start the Backend
-
-```bash
-cd backend
-composer install
-cp .env.example .env
-# Set local APP_URL, FRONTEND_URL, database values, and ADMIN_SEED_* in backend/.env.
-php artisan key:generate
-php artisan migrate --seed
-php artisan storage:link
-php artisan serve --host=127.0.0.1 --port=8000
-```
-
-### 3. Start the Frontend
-
-Open a second terminal:
+## Local Frontend Setup
 
 ```bash
 cd frontend
@@ -110,92 +80,70 @@ cp .env.example .env
 npm run dev
 ```
 
-Default local URLs:
+For production-like local serverless API testing, use Vercel CLI from `frontend/` with the Supabase server environment variables configured locally.
 
-- Storefront: `http://127.0.0.1:5173`
-- Admin login: `http://127.0.0.1:5173/admin/login`
-- Backend API: `http://127.0.0.1:8000/api`
+Default local frontend URL:
 
-To create a seeded admin account, set `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` in `backend/.env` before running the seeders. Change the password from the admin account page after the first login.
+```text
+http://127.0.0.1:5173
+```
 
 ## Environment
 
-Frontend `.env`:
+Frontend/Vercel variables:
 
 ```env
-VITE_API_URL=https://your-backend-domain.com
+VITE_API_URL=/api
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=server_only_do_not_expose
+ADMIN_EMAIL=your_admin_email
+ADMIN_PASSWORD=your_admin_password
+ADMIN_TOKEN_SECRET=your_admin_token_secret
 ```
 
-Backend `.env` values to check:
-
-```env
-APP_URL=https://your-backend-domain.com
-FRONTEND_URL=https://your-frontend-domain.com
-DB_CONNECTION=mysql
-DB_DATABASE=maghrib_oud
-CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com
-SANCTUM_STATEFUL_DOMAINS=your-frontend-domain.com
-FILESYSTEM_DISK=public
-UPLOADS_DISK=public
-```
+Only `VITE_API_URL` is browser-facing. Supabase and admin variables are server-only Vercel variables and must never be exposed in browser code.
 
 ## API Overview
 
 Public endpoints:
 
-- `GET /api/health`
 - `GET /api/categories`
-- `GET /api/categories/{slug}`
 - `GET /api/products`
 - `GET /api/products/featured`
-- `GET /api/products/slug/{slug}`
-- `GET /api/products/{id}`
+- `GET /api/products/:id-or-slug`
+- `GET /api/products/slug/:slug`
 - `GET /api/settings`
 - `GET /api/social-links`
-- `GET /api/loyalty-points`
+- `GET /api/loyalty-points?phone=...`
 - `POST /api/orders`
 
-Admin endpoints are under `/api/admin` and require a Sanctum bearer token after login.
+Admin endpoints are under `/api/admin` and require the signed bearer token returned by login.
 
-Main admin areas:
-
-- `/api/admin/dashboard`
-- `/api/admin/categories`
-- `/api/admin/products`
-- `/api/admin/orders`
-- `/api/admin/settings`
-- `/api/admin/social-links`
-- `/api/admin/profile`
-
-## Testing and Build
-
-Backend tests:
-
-```bash
-cd backend
-php artisan test
-```
-
-Frontend production build:
+## Build
 
 ```bash
 cd frontend
+npm install
 npm run build
 ```
 
+Production output:
+
+```text
+frontend/dist
+```
+
+## Deployment
+
+See:
+
+- [Deployment guide](DEPLOYMENT.md)
+- [Supabase schema](docs/supabase-schema.sql)
+- [Supabase + Vercel guide](docs/supabase-vercel-deployment-guide.md)
+
 ## Notes
 
-- Store name, currency, and country are fixed brand settings in the dashboard.
-- WhatsApp number, delivery fee, default language, social links, promotions, and loyalty rules are managed from the dashboard.
-- Customers do not need an account to place orders or check loyalty points; the phone number links orders to points.
-- Loyalty points are awarded only after an order is marked as delivered.
-- The public text avoids fixed category lists so the store remains accurate as the catalog changes.
-
-## Documentation
-
-- [Architecture](docs/architecture.md)
-- [API routes](docs/api-routes.md)
-- [Database schema](docs/database-schema.md)
-- [Checkout flow](docs/whatsapp-checkout-flow.md)
-- [Branding](docs/branding.md)
-- [Deployment](DEPLOYMENT.md)
+- Do not commit `.env` files or real credentials.
+- Do not commit `node_modules`, `vendor`, generated packages, or ZIP files.
+- Production should use Vercel API functions and Supabase, not the legacy Laravel backend.

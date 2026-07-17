@@ -21,7 +21,6 @@ frontend/.env
 backend/.env
 !.env.example
 !**/.env.example
-!backend/.env.infinityfree.example
 
 # Logs
 *.log
@@ -53,6 +52,7 @@ tmp/
 
 # PWA generated files
 frontend/public/workbox-*.js
+
 # Deployment upload packages
-/deploy/infinityfree-package/
-/deploy/*.zip
+deploy/infinityfree-package/
+deploy/*.zip

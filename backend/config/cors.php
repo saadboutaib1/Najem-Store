@@ -6,7 +6,6 @@ $splitOrigins = static function (?string $value): array {
 
 $productionOrigins = [
     'https://maghrib-oud.vercel.app',
-    'https://maghrib-oud.infinityfree.me',
 ];
 
 $localOrigins = in_array(env('APP_ENV'), ['local', 'testing'], true)

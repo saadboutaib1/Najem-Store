@@ -175,10 +175,10 @@ The message must be URL encoded and opened through the WhatsApp Business number 
 
 ## 11. Deployment Plan
 
-- Frontend: Vercel, Netlify, or a static hosting provider with HTTPS.
-- Backend: Render, Railway, Fly.io, VPS, or Vercel Functions depending on chosen stack.
-- Database: managed PostgreSQL/MySQL or a VPS-hosted database.
-- Media storage: Cloudinary, S3-compatible storage, or local storage for early testing.
+- Frontend: Vercel with HTTPS.
+- Backend: Vercel Serverless Functions in `frontend/api`.
+- Database: Supabase Postgres.
+- Media storage: existing public assets for early testing; Supabase Storage can be added later.
 - Domain: connect custom domain with HTTPS.
 - Monitoring: application logs, uptime checks, and error tracking.
 
