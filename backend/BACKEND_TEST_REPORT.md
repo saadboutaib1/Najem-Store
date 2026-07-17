@@ -1,7 +1,7 @@
-# Najem Store Backend Test Report
+# MAGHRIB OUD Backend Test Report
 
-Date: 2026-06-29  
-Backend URL: `http://127.0.0.1:8000`  
+Date: 2026-06-29
+Backend URL: `http://127.0.0.1:8000`
 Environment: Laravel API, MySQL via local XAMPP
 
 ## Backend Status
@@ -12,10 +12,10 @@ The Laravel backend is installed, configured, migrated, seeded and running local
 
 ## Database Status
 
-Database connection: MySQL  
-Database name: `najem_store`  
-Host: `127.0.0.1`  
-Port: `3306`  
+Database connection: MySQL
+Database name: `maghrib_oud`
+Host: `127.0.0.1`
+Port: `3306`
 Username: `root`
 
 Database counts after validation:
@@ -108,12 +108,7 @@ POST /api/admin/login
 
 Result: Passed.
 
-Default local admin:
-
-```text
-email: admin@najemstore.com
-password: password123
-```
+Test-only admin credentials are supplied through `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` in the test environment. Production credentials must be configured through environment variables and are not documented here.
 
 The response returned admin data and a Sanctum bearer token.
 
@@ -125,7 +120,7 @@ Endpoint:
 GET /api/admin/dashboard
 ```
 
-Without token: Passed, returned `401 Unauthorized`.  
+Without token: Passed, returned `401 Unauthorized`.
 With bearer token: Passed, returned dashboard statistics:
 
 - total products
@@ -220,7 +215,7 @@ Tests: 5 passed (70 assertions)
 ## Errors Found
 
 1. `.env` was still configured for SQLite.
-   - Fixed by setting local MySQL variables for `najem_store`.
+   - Fixed by setting local MySQL variables for `maghrib_oud`.
 
 2. `php artisan optimize:clear` failed before migrations because `CACHE_STORE=database` required the `cache` table before it existed.
    - Fixed by setting `CACHE_STORE=file` in `.env` and `.env.example`.
@@ -278,7 +273,7 @@ copy .env.example .env
 Create the local database if needed:
 
 ```bash
-C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS najem_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS maghrib_oud CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
 Then run:

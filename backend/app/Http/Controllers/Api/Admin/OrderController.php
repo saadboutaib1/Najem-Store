@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
+use App\Services\LoyaltyService;
 use App\Support\ApiResponse;
 
 class OrderController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(private readonly LoyaltyService $loyalty)
+    {
+    }
 
     public function index(): mixed
     {
@@ -26,7 +31,9 @@ class OrderController extends Controller
 
     public function updateStatus(UpdateOrderStatusRequest $request, Order $order): mixed
     {
+        $previousStatus = $order->status;
         $order->update($request->validated());
+        $this->loyalty->syncOrderStatus($order->fresh(), $previousStatus);
 
         return $this->success((new OrderResource($order->fresh('items')))->resolve(), 'Order status updated.');
     }

@@ -12,6 +12,7 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { getAdminText } from '../../i18n/admin.js';
 import { deleteCategory, getCategories } from '../../services/adminApi.js';
+import { getLocalizedField } from '../../utils/formatters.js';
 
 const CATEGORIES_PER_PAGE = 8;
 
@@ -56,8 +57,6 @@ export default function AdminCategories() {
       navigation: ta('pagination.navigation'),
       previous: ta('pagination.previous'),
       next: ta('pagination.next'),
-      summary: ta('pagination.summary'),
-      pageInfo: ta('pagination.pageInfo'),
       pageLabel: ta('pagination.pageLabel'),
     }),
     [language]
@@ -70,7 +69,7 @@ export default function AdminCategories() {
   }, [currentPage, totalPages]);
 
   function getCategoryName(category) {
-    return language === 'ar' ? category?.name_ar || category?.name_en : category?.name_en || category?.name_ar;
+    return getLocalizedField(category || {}, 'name', language);
   }
 
   async function confirmDelete() {
@@ -113,12 +112,13 @@ export default function AdminCategories() {
           ) : null
         }
       >
-        <AdminTableWrapper minWidth={760}>
+        <AdminTableWrapper minWidth={920}>
           <table className="admin-table">
             <thead>
               <tr>
                 <th>{ta('common.image')}</th>
                 <th>{ta('common.nameAr')}</th>
+                <th>{ta('common.nameFr')}</th>
                 <th>{ta('common.nameEn')}</th>
                 <th>{ta('common.slug')}</th>
                 <th>{ta('categories.sortOrder')}</th>
@@ -135,6 +135,7 @@ export default function AdminCategories() {
                   <td>
                     <strong>{category.name_ar}</strong>
                   </td>
+                  <td>{category.name_fr}</td>
                   <td>{category.name_en}</td>
                   <td>{category.slug}</td>
                   <td>{category.sort_order}</td>
@@ -155,7 +156,7 @@ export default function AdminCategories() {
               ))}
               {isLoading && (
                 <tr>
-                  <td colSpan="7">{ta('common.loading')}</td>
+                  <td colSpan="8">{ta('common.loading')}</td>
                 </tr>
               )}
             </tbody>

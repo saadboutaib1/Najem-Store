@@ -13,11 +13,8 @@ export default function Categories() {
   const [categories, setCategories] = useState(getFallbackCategories);
   const [currentPage, setCurrentPage] = useState(1);
   const [catalogStatus, setCatalogStatus] = useState({ isLoading: true, error: '' });
-  const loadingText = language === 'ar' ? 'جارٍ تحميل الأقسام...' : 'Loading categories...';
-  const offlineText =
-    language === 'ar'
-      ? 'تعذر الاتصال بالخادم حاليًا، يتم عرض بيانات محلية مؤقتة.'
-      : 'Backend is offline right now, local demo data is shown.';
+  const loadingText = t('common.loadingCategories');
+  const offlineText = t('common.catalogOffline');
 
   useEffect(() => {
     let isMounted = true;
@@ -61,9 +58,8 @@ export default function Categories() {
   return (
     <section className="page-section">
       <div className="container section-heading">
-        <span className="eyebrow">Najem Store</span>
+        <span className="eyebrow">MAGHRIB OUD</span>
         <h1>{t('categories.title')}</h1>
-        <p>{t('categories.subtitle')}</p>
       </div>
       {catalogStatus.isLoading && <div className="catalog-loading" role="status" aria-label={loadingText} />}
       {!catalogStatus.isLoading && catalogStatus.error && <p className="catalog-notice">{catalogStatus.error}</p>}

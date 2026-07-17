@@ -1,7 +1,8 @@
-import { ArrowLeft, ImageUp, Plus, RotateCcw, Save } from 'lucide-react';
+import { ArrowLeft, ImageUp, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import AdminCard from '../../components/admin/AdminCard.jsx';
+import AdminConfirmDialog from '../../components/admin/AdminConfirmDialog.jsx';
 import AdminFormLayout from '../../components/admin/AdminFormLayout.jsx';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import AdminSelect from '../../components/admin/AdminSelect.jsx';
@@ -14,9 +15,11 @@ import { createCategory, getCategories, updateCategory } from '../../services/ad
 const emptyCategoryForm = {
   name_ar: '',
   name_en: '',
+  name_fr: '',
   slug: '',
   description_ar: '',
   description_en: '',
+  description_fr: '',
   status: 'active',
   sort_order: 0,
 };
@@ -45,6 +48,8 @@ export default function AdminCategoryForm() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [initialImagePreview, setInitialImagePreview] = useState('');
+  const [shouldRemoveImage, setShouldRemoveImage] = useState(false);
+  const [isImageRemoveConfirmOpen, setIsImageRemoveConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -68,6 +73,7 @@ export default function AdminCategoryForm() {
         setImageFile(null);
         setImagePreview('');
         setInitialImagePreview('');
+        setShouldRemoveImage(false);
         setIsLoading(false);
         return;
       }
@@ -90,9 +96,11 @@ export default function AdminCategoryForm() {
         const nextForm = {
           name_ar: category.name_ar || '',
           name_en: category.name_en || '',
+          name_fr: category.name_fr || category.name_en || '',
           slug: category.slug || '',
           description_ar: category.description_ar || '',
           description_en: category.description_en || '',
+          description_fr: category.description_fr || category.description_en || '',
           status: category.status || 'active',
           sort_order: category.sort_order || 0,
         };
@@ -100,6 +108,7 @@ export default function AdminCategoryForm() {
         setImageFile(null);
         setImagePreview(nextImagePreview);
         setInitialImagePreview(nextImagePreview);
+        setShouldRemoveImage(false);
         setForm(nextForm);
         setInitialForm(nextForm);
       } catch {
@@ -128,6 +137,9 @@ export default function AdminCategoryForm() {
   function updateImage(event) {
     const file = event.target.files?.[0] || null;
     setImageFile(file);
+    if (file) {
+      setShouldRemoveImage(false);
+    }
     setImagePreview(file ? URL.createObjectURL(file) : imagePreview);
   }
 
@@ -135,11 +147,19 @@ export default function AdminCategoryForm() {
     setError('');
     setImageFile(null);
     setImagePreview(initialImagePreview);
+    setShouldRemoveImage(false);
     setForm(initialForm);
   }
 
+  function confirmRemoveImage() {
+    setIsImageRemoveConfirmOpen(false);
+    setImageFile(null);
+    setImagePreview('');
+    setShouldRemoveImage(Boolean(initialImagePreview));
+  }
+
   function validateForm() {
-    if (!form.name_ar.trim() || !form.name_en.trim()) {
+    if (!form.name_ar.trim() || !form.name_en.trim() || !form.name_fr.trim()) {
       return ta('common.validationRequired');
     }
 
@@ -163,9 +183,12 @@ export default function AdminCategoryForm() {
 
     setIsSaving(true);
 
-    const payload = imageFile
-      ? buildCategoryFormData({ ...form, sort_order: Number(form.sort_order || 0) }, imageFile)
-      : { ...form, sort_order: Number(form.sort_order || 0) };
+    const normalizedForm = {
+      ...form,
+      sort_order: Number(form.sort_order || 0),
+      remove_image: shouldRemoveImage || undefined,
+    };
+    const payload = imageFile ? buildCategoryFormData(normalizedForm, imageFile) : normalizedForm;
 
     try {
       if (isEditing) {
@@ -220,43 +243,63 @@ export default function AdminCategoryForm() {
               </>
             }
           >
-            <label>
-              <span>
-                {ta('common.nameAr')} <em>{ta('common.required')}</em>
-              </span>
-              <input name="name_ar" value={form.name_ar} onChange={updateField} required />
-            </label>
-            <label>
-              <span>
-                {ta('common.nameEn')} <em>{ta('common.required')}</em>
-              </span>
-              <input name="name_en" value={form.name_en} onChange={updateField} required />
-            </label>
-            <label>
-              <span>{ta('common.slug')}</span>
-              <input name="slug" value={form.slug} onChange={updateField} />
-            </label>
+            <div className="admin-language-fields admin-form__wide">
+              <h3>{ta('common.localizedNames')}</h3>
+              <label>
+                <span>
+                  {ta('common.nameAr')} <em>{ta('common.required')}</em>
+                </span>
+                <input name="name_ar" value={form.name_ar} onChange={updateField} dir="rtl" required />
+              </label>
+              <label>
+                <span>
+                  {ta('common.nameFr')} <em>{ta('common.required')}</em>
+                </span>
+                <input name="name_fr" value={form.name_fr} onChange={updateField} dir="ltr" required />
+              </label>
+              <label>
+                <span>
+                  {ta('common.nameEn')} <em>{ta('common.required')}</em>
+                </span>
+                <input name="name_en" value={form.name_en} onChange={updateField} dir="ltr" required />
+              </label>
+            </div>
             <label>
               <span>{ta('categories.sortOrder')}</span>
               <input type="number" min="0" name="sort_order" value={form.sort_order} onChange={updateField} />
             </label>
-            <label className="admin-form__wide">
-              <span>{ta('common.descriptionAr')}</span>
-              <textarea name="description_ar" value={form.description_ar} onChange={updateField} rows="3" />
-            </label>
-            <label className="admin-form__wide">
-              <span>{ta('common.descriptionEn')}</span>
-              <textarea name="description_en" value={form.description_en} onChange={updateField} rows="3" />
-            </label>
+            <div className="admin-language-fields admin-language-fields--textarea admin-form__wide">
+              <h3>{ta('common.localizedDescriptions')}</h3>
+              <label>
+                <span>{ta('common.descriptionAr')}</span>
+                <textarea name="description_ar" value={form.description_ar} onChange={updateField} rows="3" dir="rtl" />
+              </label>
+              <label>
+                <span>{ta('common.descriptionFr')}</span>
+                <textarea name="description_fr" value={form.description_fr} onChange={updateField} rows="3" dir="ltr" />
+              </label>
+              <label>
+                <span>{ta('common.descriptionEn')}</span>
+                <textarea name="description_en" value={form.description_en} onChange={updateField} rows="3" dir="ltr" />
+              </label>
+            </div>
 
             <div className="admin-image-field admin-form__wide">
               <div className="admin-image-preview">
                 {imagePreview ? <img src={imagePreview} alt={ta('common.preview')} /> : <ImageUp size={34} />}
               </div>
-              <label className="admin-file-control">
-                <span>{imagePreview ? ta('common.changeImage') : ta('common.uploadImage')}</span>
-                <input type="file" accept="image/*" onChange={updateImage} />
-              </label>
+              <div className="admin-image-actions">
+                <label className="admin-file-control">
+                  <span>{imagePreview ? ta('common.changeImage') : ta('common.uploadImage')}</span>
+                  <input type="file" accept="image/*" onChange={updateImage} />
+                </label>
+                {imagePreview && (
+                  <button className="admin-button admin-button--danger admin-image-remove-button" type="button" onClick={() => setIsImageRemoveConfirmOpen(true)}>
+                    <Trash2 size={16} />
+                    <span>{ta('common.removeImage')}</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <label>
@@ -271,6 +314,16 @@ export default function AdminCategoryForm() {
           </AdminFormLayout>
         )}
       </AdminCard>
+
+      <AdminConfirmDialog
+        open={isImageRemoveConfirmOpen}
+        title={ta('common.removeImageTitle')}
+        message={ta('common.removeImageMessage')}
+        confirmLabel={ta('common.removeImage')}
+        cancelLabel={ta('common.cancel')}
+        onCancel={() => setIsImageRemoveConfirmOpen(false)}
+        onConfirm={confirmRemoveImage}
+      />
     </section>
   );
 }

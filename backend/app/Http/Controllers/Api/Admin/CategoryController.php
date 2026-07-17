@@ -43,6 +43,17 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): mixed
     {
+        $category->load('products.images');
+        $this->images->delete($category->image);
+
+        foreach ($category->products as $product) {
+            $this->images->delete($product->main_image);
+
+            foreach ($product->images as $image) {
+                $this->images->delete($image->image);
+            }
+        }
+
         $category->delete();
 
         return $this->success(null, 'Category deleted.');
@@ -50,18 +61,25 @@ class CategoryController extends Controller
 
     private function payload(array $data, ?Category $category = null): array
     {
+        $removeImage = filter_var($data['remove_image'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
         if (empty($data['slug']) && isset($data['name_en'])) {
             $data['slug'] = Str::slug($data['name_en']);
         }
 
         if (request()->hasFile('image')) {
+            $this->images->delete($category?->image);
             $data['image'] = $this->images->store(request()->file('image'), 'categories');
         } elseif (!empty($data['image_url'])) {
+            $this->images->delete($category?->image);
             $data['image'] = $data['image_url'];
+        } elseif ($removeImage) {
+            $this->images->delete($category?->image);
+            $data['image'] = null;
         }
 
-        unset($data['image_url']);
+        unset($data['image_url'], $data['remove_image']);
 
-        return array_filter($data, fn ($value) => $value !== null);
+        return array_filter($data, fn ($value, $key) => $value !== null || $key === 'image', ARRAY_FILTER_USE_BOTH);
     }
 }

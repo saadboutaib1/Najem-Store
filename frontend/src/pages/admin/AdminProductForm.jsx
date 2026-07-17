@@ -1,7 +1,8 @@
-import { ArrowLeft, ImageUp, Plus, RotateCcw, Save } from 'lucide-react';
+import { ArrowLeft, ImageUp, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import AdminCard from '../../components/admin/AdminCard.jsx';
+import AdminConfirmDialog from '../../components/admin/AdminConfirmDialog.jsx';
 import AdminFormLayout from '../../components/admin/AdminFormLayout.jsx';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import AdminSelect from '../../components/admin/AdminSelect.jsx';
@@ -10,14 +11,17 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { getAdminText } from '../../i18n/admin.js';
 import { createProduct, getCategories, getProduct, updateProduct } from '../../services/adminApi.js';
+import { getLocalizedField } from '../../utils/formatters.js';
 
 const emptyProductForm = {
   category_id: '',
   name_ar: '',
   name_en: '',
+  name_fr: '',
   slug: '',
   description_ar: '',
   description_en: '',
+  description_fr: '',
   price: '',
   old_price: '',
   stock: 0,
@@ -52,6 +56,8 @@ export default function AdminProductForm() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [initialImagePreview, setInitialImagePreview] = useState('');
+  const [shouldRemoveImage, setShouldRemoveImage] = useState(false);
+  const [isImageRemoveConfirmOpen, setIsImageRemoveConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditing);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -80,9 +86,11 @@ export default function AdminProductForm() {
             category_id: product.category_id || '',
             name_ar: product.name_ar || '',
             name_en: product.name_en || '',
+            name_fr: product.name_fr || product.name_en || '',
             slug: product.slug || '',
             description_ar: product.description_ar || '',
             description_en: product.description_en || '',
+            description_fr: product.description_fr || product.description_en || '',
             price: product.price ?? '',
             old_price: product.old_price ?? product.oldPrice ?? '',
             stock: product.stock ?? 0,
@@ -93,6 +101,7 @@ export default function AdminProductForm() {
           setImageFile(null);
           setImagePreview(nextImagePreview);
           setInitialImagePreview(nextImagePreview);
+          setShouldRemoveImage(false);
           setForm(nextForm);
           setInitialForm(nextForm);
         } else {
@@ -100,6 +109,7 @@ export default function AdminProductForm() {
           setImageFile(null);
           setImagePreview('');
           setInitialImagePreview('');
+          setShouldRemoveImage(false);
           setForm(nextForm);
           setInitialForm(nextForm);
         }
@@ -127,7 +137,7 @@ export default function AdminProductForm() {
         { value: '', label: ta('products.chooseCategory') },
         ...categories.map((category) => ({
           value: String(category.id),
-          label: language === 'ar' ? category.name_ar : category.name_en,
+          label: getLocalizedField(category, 'name', language),
         })),
       ],
     [categories, language]
@@ -149,6 +159,9 @@ export default function AdminProductForm() {
   function updateImage(event) {
     const file = event.target.files?.[0] || null;
     setImageFile(file);
+    if (file) {
+      setShouldRemoveImage(false);
+    }
     setImagePreview(file ? URL.createObjectURL(file) : imagePreview);
   }
 
@@ -156,11 +169,19 @@ export default function AdminProductForm() {
     setError('');
     setImageFile(null);
     setImagePreview(initialImagePreview);
+    setShouldRemoveImage(false);
     setForm(initialForm);
   }
 
+  function confirmRemoveImage() {
+    setIsImageRemoveConfirmOpen(false);
+    setImageFile(null);
+    setImagePreview('');
+    setShouldRemoveImage(Boolean(initialImagePreview));
+  }
+
   function validateForm() {
-    if (!form.name_ar.trim() || !form.name_en.trim() || !form.category_id || form.price === '' || form.stock === '') {
+    if (!form.name_ar.trim() || !form.name_en.trim() || !form.name_fr.trim() || !form.category_id || form.price === '' || form.stock === '') {
       return ta('common.validationRequired');
     }
 
@@ -183,6 +204,7 @@ export default function AdminProductForm() {
       old_price: form.old_price === '' ? null : Number(form.old_price),
       stock: Number(form.stock || 0),
       is_featured: Boolean(form.is_featured),
+      remove_image: shouldRemoveImage || undefined,
     };
 
     return imageFile ? buildProductFormData(normalizedForm, imageFile) : normalizedForm;
@@ -280,22 +302,27 @@ export default function AdminProductForm() {
                 <strong>{ta('products.showInFeatured')}</strong>
               </span>
             </label>
-            <label>
-              <span>
-                {ta('common.nameAr')} <em>{ta('common.required')}</em>
-              </span>
-              <input name="name_ar" value={form.name_ar} onChange={updateField} required />
-            </label>
-            <label>
-              <span>
-                {ta('common.nameEn')} <em>{ta('common.required')}</em>
-              </span>
-              <input name="name_en" value={form.name_en} onChange={updateField} required />
-            </label>
-            <label>
-              <span>{ta('common.slug')}</span>
-              <input name="slug" value={form.slug} onChange={updateField} />
-            </label>
+            <div className="admin-language-fields admin-form__wide">
+              <h3>{ta('common.localizedNames')}</h3>
+              <label>
+                <span>
+                  {ta('common.nameAr')} <em>{ta('common.required')}</em>
+                </span>
+                <input name="name_ar" value={form.name_ar} onChange={updateField} dir="rtl" required />
+              </label>
+              <label>
+                <span>
+                  {ta('common.nameFr')} <em>{ta('common.required')}</em>
+                </span>
+                <input name="name_fr" value={form.name_fr} onChange={updateField} dir="ltr" required />
+              </label>
+              <label>
+                <span>
+                  {ta('common.nameEn')} <em>{ta('common.required')}</em>
+                </span>
+                <input name="name_en" value={form.name_en} onChange={updateField} dir="ltr" required />
+              </label>
+            </div>
             <label>
               <span>
                 {ta('common.price')} <em>{ta('common.required')}</em>
@@ -316,23 +343,48 @@ export default function AdminProductForm() {
               <div className="admin-image-preview admin-image-preview--wide">
                 {imagePreview ? <img src={imagePreview} alt={ta('common.preview')} /> : <ImageUp size={34} />}
               </div>
-              <label className="admin-file-control">
-                <span>{imagePreview ? ta('common.changeImage') : ta('common.uploadImage')}</span>
-                <input type="file" accept="image/*" onChange={updateImage} />
-              </label>
+              <div className="admin-image-actions">
+                <label className="admin-file-control">
+                  <span>{imagePreview ? ta('common.changeImage') : ta('common.uploadImage')}</span>
+                  <input type="file" accept="image/*" onChange={updateImage} />
+                </label>
+                {imagePreview && (
+                  <button className="admin-button admin-button--danger admin-image-remove-button" type="button" onClick={() => setIsImageRemoveConfirmOpen(true)}>
+                    <Trash2 size={16} />
+                    <span>{ta('common.removeImage')}</span>
+                  </button>
+                )}
+              </div>
             </div>
 
-            <label className="admin-form__wide">
-              <span>{ta('common.descriptionAr')}</span>
-              <textarea name="description_ar" value={form.description_ar} onChange={updateField} rows="3" />
-            </label>
-            <label className="admin-form__wide">
-              <span>{ta('common.descriptionEn')}</span>
-              <textarea name="description_en" value={form.description_en} onChange={updateField} rows="3" />
-            </label>
+            <div className="admin-language-fields admin-language-fields--textarea admin-form__wide">
+              <h3>{ta('common.localizedDescriptions')}</h3>
+              <label>
+                <span>{ta('common.descriptionAr')}</span>
+                <textarea name="description_ar" value={form.description_ar} onChange={updateField} rows="3" dir="rtl" />
+              </label>
+              <label>
+                <span>{ta('common.descriptionFr')}</span>
+                <textarea name="description_fr" value={form.description_fr} onChange={updateField} rows="3" dir="ltr" />
+              </label>
+              <label>
+                <span>{ta('common.descriptionEn')}</span>
+                <textarea name="description_en" value={form.description_en} onChange={updateField} rows="3" dir="ltr" />
+              </label>
+            </div>
           </AdminFormLayout>
         )}
       </AdminCard>
+
+      <AdminConfirmDialog
+        open={isImageRemoveConfirmOpen}
+        title={ta('common.removeImageTitle')}
+        message={ta('common.removeImageMessage')}
+        confirmLabel={ta('common.removeImage')}
+        cancelLabel={ta('common.cancel')}
+        onCancel={() => setIsImageRemoveConfirmOpen(false)}
+        onConfirm={confirmRemoveImage}
+      />
     </section>
   );
 }

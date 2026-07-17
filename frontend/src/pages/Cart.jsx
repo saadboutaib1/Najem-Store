@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext.jsx';
 import { useStoreData } from '../context/StoreDataContext.jsx';
 import { getProductImageFallback } from '../utils/adapters.js';
 import { formatCurrency, getLocalizedField } from '../utils/formatters.js';
+import { calculateBuy2Discount, calculateLoyaltyPoints, isBuy2OfferActive } from '../utils/promotions.js';
 
 export default function Cart() {
   const {
@@ -19,6 +20,10 @@ export default function Cart() {
   } = useCart();
   const { language, t } = useLanguage();
   const { settings } = useStoreData();
+  const discountTotal = calculateBuy2Discount(items, settings.buy2Offer);
+  const discountedSubtotal = Math.max(0, subtotal - discountTotal);
+  const expectedPoints = calculateLoyaltyPoints(discountedSubtotal, settings.loyalty);
+  const hasActiveOffer = isBuy2OfferActive(settings.buy2Offer);
   const handleImageError = (item) => (event) => {
     event.currentTarget.onerror = null;
     event.currentTarget.src = getProductImageFallback(item.category);
@@ -30,7 +35,6 @@ export default function Cart() {
         <div className="container empty-panel">
           <ShoppingBag size={44} aria-hidden="true" />
           <h1>{t('cart.emptyTitle')}</h1>
-          <p>{t('cart.emptyText')}</p>
           <Link to="/products" className="button button--gold">
             {t('common.continueShopping')}
           </Link>
@@ -42,7 +46,7 @@ export default function Cart() {
   return (
     <section className="page-section cart-page">
       <div className="container section-heading">
-        <span className="eyebrow">Najem Store</span>
+        <span className="eyebrow">MAGHRIB OUD</span>
         <h1>{t('cart.title')}</h1>
         <div className="page-actions">
           <BackButton fallbackTo="/products" />
@@ -92,10 +96,26 @@ export default function Cart() {
             <span>{t('common.subtotal')}</span>
             <strong>{formatCurrency(subtotal, language, settings.currency)}</strong>
           </div>
+          {discountTotal > 0 && (
+            <div className="summary-row summary-row--discount">
+              <span>{t('cart.discountLabel')}</span>
+              <strong>-{formatCurrency(discountTotal, language, settings.currency)}</strong>
+            </div>
+          )}
           <div className="summary-row summary-row--total">
             <span>{t('cart.totalBeforeDelivery')}</span>
-            <strong>{formatCurrency(subtotal, language, settings.currency)}</strong>
+            <strong>{formatCurrency(discountedSubtotal, language, settings.currency)}</strong>
           </div>
+          {hasActiveOffer && discountTotal <= 0 && (
+            <p className="summary-note summary-note--success">
+              {t('cart.unlockBuy2Discount')}
+            </p>
+          )}
+          {expectedPoints > 0 && (
+            <p className="summary-note summary-note--success">
+              {t('cart.expectedPoints').replace('{points}', expectedPoints)}
+            </p>
+          )}
           <p className="summary-note">{t('cart.deliveryNote')}</p>
           <Link to="/checkout" className="button button--gold button--full">
             {t('common.checkout')}

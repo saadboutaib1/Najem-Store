@@ -69,7 +69,7 @@ export default function AdminOrderDetails() {
   function formatDate(date) {
     if (!date) return '-';
 
-    return new Date(date).toLocaleString(language === 'ar' ? 'ar-MA' : 'en-MA', {
+    return new Date(date).toLocaleString(language === 'ar' ? 'ar-MA' : language === 'fr' ? 'fr-MA' : 'en-MA', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -165,7 +165,7 @@ export default function AdminOrderDetails() {
                 </div>
                 <div>
                   <dt>{ta('orders.phone')}</dt>
-                  <dd dir="ltr">{order.customer_phone}</dd>
+                  <dd className="admin-details-list__phone" dir="ltr">{order.customer_phone}</dd>
                 </div>
                 <div>
                   <dt>{ta('orders.city')}</dt>
@@ -238,7 +238,7 @@ export default function AdminOrderDetails() {
                 <tbody>
                   {(order.items || []).map((item) => (
                     <tr key={item.id}>
-                      <td>{language === 'ar' ? item.product_name_ar : item.product_name_en}</td>
+                      <td>{language === 'ar' ? item.product_name_ar : language === 'fr' ? (item.product_name_fr || item.product_name_en) : item.product_name_en}</td>
                       <td>{item.quantity}</td>
                       <td>{formatCurrency(item.unit_price, language)}</td>
                       <td>{formatCurrency(item.total_price, language)}</td>

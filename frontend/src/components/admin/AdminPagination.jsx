@@ -26,8 +26,6 @@ export default function AdminPagination({ page, pageSize, totalItems, onPageChan
   }
 
   const currentPage = Math.min(Math.max(page, 1), totalPages);
-  const firstItem = (currentPage - 1) * safePageSize + 1;
-  const lastItem = Math.min(currentPage * safePageSize, totalItems);
   const visiblePages = getVisiblePages(currentPage, totalPages);
 
   function goToPage(nextPage) {
@@ -40,11 +38,6 @@ export default function AdminPagination({ page, pageSize, totalItems, onPageChan
 
   return (
     <nav className="admin-pagination" aria-label={labels.navigation}>
-      <div className="admin-pagination__summary">
-        <strong>{fillTemplate(labels.summary, { from: firstItem, to: lastItem, total: totalItems })}</strong>
-        <span>{fillTemplate(labels.pageInfo, { page: currentPage, pages: totalPages })}</span>
-      </div>
-
       <div className="admin-pagination__controls">
         <button type="button" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
           {labels.previous}

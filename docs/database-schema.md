@@ -1,4 +1,4 @@
-# Database Schema - Najem Store
+# Database Schema - MAGHRIB OUD
 
 ## 1. Schema Principles
 

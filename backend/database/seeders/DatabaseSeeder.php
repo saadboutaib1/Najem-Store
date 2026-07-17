@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             SocialLinkSeeder::class,
             CategorySeeder::class,
             ProductSeeder::class,
+            CatalogContentRepairSeeder::class,
         ]);
     }
 }

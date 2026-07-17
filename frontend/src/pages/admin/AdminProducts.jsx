@@ -13,7 +13,7 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { getAdminText } from '../../i18n/admin.js';
 import { deleteProduct, getCategories, getProducts } from '../../services/adminApi.js';
-import { formatCurrency } from '../../utils/formatters.js';
+import { formatCurrency, getLocalizedField } from '../../utils/formatters.js';
 
 const PRODUCTS_PER_PAGE = 8;
 
@@ -56,7 +56,7 @@ export default function AdminProducts() {
         { value: '', label: ta('products.allCategories') },
         ...categories.map((category) => ({
           value: String(category.id),
-          label: language === 'ar' ? category.name_ar : category.name_en,
+          label: getLocalizedField(category, 'name', language),
         })),
       ],
     [categories, language, ta]
@@ -68,7 +68,16 @@ export default function AdminProducts() {
     return products.filter((product) => {
       const matchesSearch =
         !normalizedSearch ||
-        [product.name_ar, product.name_en, product.slug, product.category, product.category_name_ar, product.category_name_en]
+        [
+          product.name_ar,
+          product.name_fr,
+          product.name_en,
+          product.slug,
+          product.category,
+          product.category_name_ar,
+          product.category_name_fr,
+          product.category_name_en,
+        ]
           .filter(Boolean)
           .some((value) => String(value).toLowerCase().includes(normalizedSearch));
       const matchesCategory = !categoryFilter || String(product.category_id) === String(categoryFilter);
@@ -89,8 +98,6 @@ export default function AdminProducts() {
       navigation: ta('pagination.navigation'),
       previous: ta('pagination.previous'),
       next: ta('pagination.next'),
-      summary: ta('pagination.summary'),
-      pageInfo: ta('pagination.pageInfo'),
       pageLabel: ta('pagination.pageLabel'),
     }),
     [language]
@@ -107,7 +114,7 @@ export default function AdminProducts() {
   }, [currentPage, totalPages]);
 
   function getProductName(product) {
-    return language === 'ar' ? product?.name_ar || product?.name_en : product?.name_en || product?.name_ar;
+    return getLocalizedField(product || {}, 'name', language);
   }
 
   async function confirmDelete() {
@@ -183,11 +190,11 @@ export default function AdminProducts() {
                         {product.image ? <img src={product.image} alt="" /> : <ImageUp size={18} />}
                       </div>
                       <div>
-                        <strong>{language === 'ar' ? product.name_ar : product.name_en}</strong>
+                        <strong>{getLocalizedField(product, 'name', language)}</strong>
                       </div>
                     </div>
                   </td>
-                  <td>{language === 'ar' ? product.category_name_ar || product.category : product.category_name_en || product.category}</td>
+                  <td>{product[`category_name_${language}`] || product.category_name_ar || product.category_name_fr || product.category_name_en || product.category}</td>
                   <td>{formatCurrency(product.price, language)}</td>
                   <td>{product.stock}</td>
                   <td>

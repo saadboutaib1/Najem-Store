@@ -12,7 +12,7 @@ import {
   getCategoryBySlug,
   getProductById,
 } from '../services/catalogService.js';
-import { ApiError, getProduct as getApiProduct } from '../services/api.js';
+import { ApiError, getProduct as getApiProduct, getProductBySlug as getApiProductBySlug } from '../services/api.js';
 import { adaptProduct, getProductImageFallback } from '../utils/adapters.js';
 import NotFound from './NotFound.jsx';
 
@@ -25,11 +25,8 @@ export default function ProductDetails() {
   const { showToast } = useToast();
   const { language, t } = useLanguage();
   const { settings } = useStoreData();
-  const loadingText = language === 'ar' ? 'جارٍ تحميل المنتج...' : 'Loading product...';
-  const offlineText =
-    language === 'ar'
-      ? 'تعذر الاتصال بالخادم حاليًا، يتم عرض بيانات محلية مؤقتة.'
-      : 'Backend is offline right now, local demo data is shown.';
+  const loadingText = t('common.loadingProduct');
+  const offlineText = t('common.catalogOffline');
 
   useEffect(() => {
     let isMounted = true;
@@ -38,19 +35,21 @@ export default function ProductDetails() {
       setProductStatus({ isLoading: true, error: '' });
 
       try {
-        const apiProduct = await getApiProduct(productId);
+        const isNumericId = /^\d+$/.test(String(productId));
+        const apiProduct = isNumericId ? await getApiProduct(productId) : await getApiProductBySlug(productId);
         if (!isMounted) return;
         setProduct(adaptProduct(apiProduct));
         setProductStatus({ isLoading: false, error: '' });
       } catch (error) {
         if (!isMounted) return;
-        if (error instanceof ApiError && error.status > 0) {
+        const fallbackProduct = getProductById(productId);
+
+        if (error instanceof ApiError && error.status > 0 && !fallbackProduct) {
           setProduct(null);
           setProductStatus({ isLoading: false, error: '' });
           return;
         }
 
-        const fallbackProduct = getProductById(productId);
         setProduct(fallbackProduct);
         setProductStatus({
           isLoading: false,
@@ -91,7 +90,7 @@ export default function ProductDetails() {
   };
   const handleImageError = (event) => {
     event.currentTarget.onerror = null;
-    event.currentTarget.src = getProductImageFallback(product.category);
+    event.currentTarget.src = getProductImageFallback(product.category, product.slug);
   };
 
   return (
@@ -105,7 +104,7 @@ export default function ProductDetails() {
           </div>
           <div className="product-detail__content">
             <span className="eyebrow">
-              {category ? getLocalizedField(category, 'name', language) : 'Najem Store'}
+              {category ? getLocalizedField(category, 'name', language) : 'MAGHRIB OUD'}
             </span>
             <h1>{productName}</h1>
             <span className={`stock ${product.stock > 0 ? 'stock--in' : 'stock--out'}`}>

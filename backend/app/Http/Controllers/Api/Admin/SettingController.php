@@ -28,6 +28,13 @@ class SettingController extends Controller
     {
         $data = $request->validated();
         $socialKeys = ['facebook', 'instagram', 'tiktok', 'youtube'];
+        $normalizedWhatsAppNumber = null;
+
+        if (!empty($data['whatsapp_number'])) {
+            $normalizedWhatsAppNumber = $this->normalizeWhatsAppNumber($data['whatsapp_number']);
+            $data['whatsapp_number'] = $normalizedWhatsAppNumber ? "+{$normalizedWhatsAppNumber}" : $data['whatsapp_number'];
+        }
+
         $this->settings->setMany($data);
 
         foreach ($socialKeys as $platform) {
@@ -39,14 +46,32 @@ class SettingController extends Controller
             }
         }
 
-        if (!empty($data['whatsapp_number'])) {
-            $phone = preg_replace('/[^\d]/', '', $data['whatsapp_number']);
+        if ($normalizedWhatsAppNumber) {
             SocialLink::query()->updateOrCreate(
                 ['platform' => 'whatsapp'],
-                ['url' => "https://wa.me/{$phone}", 'status' => 'active']
+                ['url' => "https://wa.me/{$normalizedWhatsAppNumber}", 'status' => 'active']
             );
         }
 
         return $this->success($this->settings->all(), 'Settings updated.');
+    }
+
+    private function normalizeWhatsAppNumber(string $phoneNumber): string
+    {
+        $digits = preg_replace('/[^\d]/', '', $phoneNumber) ?? '';
+
+        if (str_starts_with($digits, '00')) {
+            return substr($digits, 2);
+        }
+
+        if (strlen($digits) === 10 && str_starts_with($digits, '0')) {
+            return '212' . substr($digits, 1);
+        }
+
+        if (strlen($digits) === 9 && !str_starts_with($digits, '212')) {
+            return '212' . $digits;
+        }
+
+        return $digits;
     }
 }

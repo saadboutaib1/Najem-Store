@@ -10,11 +10,11 @@ class SocialLinkSeeder extends Seeder
     public function run(): void
     {
         $links = [
-            ['platform' => 'whatsapp', 'url' => 'https://wa.me/212600000000'],
-            ['platform' => 'facebook', 'url' => 'https://facebook.com/najemstore'],
-            ['platform' => 'instagram', 'url' => 'https://instagram.com/najemstore'],
-            ['platform' => 'tiktok', 'url' => 'https://tiktok.com/@najemstore'],
-            ['platform' => 'youtube', 'url' => 'https://youtube.com/@najemstore'],
+            ['platform' => 'whatsapp', 'url' => 'https://wa.me/212601892738'],
+            ['platform' => 'facebook', 'url' => 'https://facebook.com/maghriboud'],
+            ['platform' => 'instagram', 'url' => 'https://instagram.com/maghriboud'],
+            ['platform' => 'tiktok', 'url' => 'https://tiktok.com/@maghriboud'],
+            ['platform' => 'youtube', 'url' => 'https://youtube.com/@maghriboud'],
         ];
 
         foreach ($links as $link) {

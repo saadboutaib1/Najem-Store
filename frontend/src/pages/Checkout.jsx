@@ -10,6 +10,7 @@ import { createOrder } from '../services/api.js';
 import { getBackendProductId } from '../utils/adapters.js';
 import { reconcileCartItemsFromBackend } from '../utils/cartReconciliation.js';
 import { formatCurrency, getLocalizedField } from '../utils/formatters.js';
+import { calculateBuy2Discount, calculateLoyaltyPoints } from '../utils/promotions.js';
 import { isValidPhoneNumber } from '../utils/validation.js';
 import { createWhatsAppOrderUrl } from '../utils/whatsapp.js';
 
@@ -33,12 +34,12 @@ export default function Checkout() {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const deliveryFee = settings.deliveryFee;
-  const total = subtotal + deliveryFee;
-  const orderErrorMessage =
-    language === 'ar'
-      ? 'تعذر إنشاء الطلب في الخادم. يرجى المحاولة مرة أخرى.'
-      : 'Could not create the order on the backend. Please try again.';
-  const submittingText = language === 'ar' ? 'جارٍ إنشاء الطلب...' : 'Creating order...';
+  const discountTotal = calculateBuy2Discount(items, settings.buy2Offer);
+  const discountedSubtotal = Math.max(0, subtotal - discountTotal);
+  const total = discountedSubtotal + deliveryFee;
+  const expectedPoints = calculateLoyaltyPoints(discountedSubtotal, settings.loyalty);
+  const orderErrorMessage = t('checkout.orderError');
+  const submittingText = t('checkout.submitting');
   const needsCartRefresh = items.some((item) => !getBackendProductId(item));
 
   const updateField = (field, value) => {
@@ -123,6 +124,7 @@ export default function Checkout() {
       const orderNumber = response.order_number || order.order_number;
       const orderSubtotal = Number(order.subtotal ?? subtotal);
       const orderDeliveryFee = Number(order.delivery_fee ?? deliveryFee);
+      const orderDiscountTotal = Number(order.discount_total ?? discountTotal);
       const orderTotal = Number(order.total ?? total);
       const whatsappUrl = createWhatsAppOrderUrl({
         orderNumber,
@@ -130,6 +132,7 @@ export default function Checkout() {
         items: checkoutItems,
         subtotal: orderSubtotal,
         deliveryFee: orderDeliveryFee,
+        discountTotal: orderDiscountTotal,
         total: orderTotal,
         language,
         currency: settings.currency,
@@ -139,12 +142,14 @@ export default function Checkout() {
         orderNumber,
         subtotal: orderSubtotal,
         deliveryFee: orderDeliveryFee,
+        discountTotal: orderDiscountTotal,
         total: orderTotal,
+        loyaltyPointsEarned: Number(order.loyalty_points_earned ?? 0),
       };
 
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       try {
-        sessionStorage.setItem('najem-last-order', JSON.stringify(successState));
+        sessionStorage.setItem('maghrib-oud-last-order', JSON.stringify(successState));
       } catch {
         // Session storage is optional; the success page can still render from route state.
       }
@@ -195,6 +200,7 @@ export default function Checkout() {
               value={form.fullName}
               onChange={(event) => updateField('fullName', event.target.value)}
               autoComplete="name"
+              dir="auto"
               required
             />
           </label>
@@ -206,6 +212,7 @@ export default function Checkout() {
               onChange={(event) => updateField('phone', event.target.value)}
               autoComplete="tel"
               inputMode="tel"
+              dir="ltr"
               required
             />
           </label>
@@ -216,6 +223,7 @@ export default function Checkout() {
               value={form.city}
               onChange={(event) => updateField('city', event.target.value)}
               autoComplete="address-level2"
+              dir="auto"
               required
             />
           </label>
@@ -227,6 +235,7 @@ export default function Checkout() {
               onChange={(event) => updateField('address', event.target.value)}
               rows="4"
               autoComplete="street-address"
+              dir="auto"
               required
             />
           </label>
@@ -237,6 +246,7 @@ export default function Checkout() {
               value={form.notes}
               onChange={(event) => updateField('notes', event.target.value)}
               rows="3"
+              dir="auto"
             />
           </label>
           {error && <p className="form-error" aria-live="polite">{error}</p>}
@@ -252,6 +262,11 @@ export default function Checkout() {
             </button>
           )}
           <p className="summary-note summary-note--form">{t('checkout.whatsappNote')}</p>
+          {expectedPoints > 0 && (
+            <p className="summary-note summary-note--form summary-note--success">
+              {t('checkout.expectedPoints').replace('{points}', expectedPoints)}
+            </p>
+          )}
           <button type="submit" className="button button--gold button--full" disabled={isSubmitting}>
             <MessageCircle size={19} aria-hidden="true" />
             {isSubmitting ? submittingText : t('checkout.whatsappOrder')}
@@ -277,6 +292,12 @@ export default function Checkout() {
             <span>{t('common.subtotal')}</span>
             <strong>{formatCurrency(subtotal, language, settings.currency)}</strong>
           </div>
+          {discountTotal > 0 && (
+            <div className="summary-row summary-row--discount">
+              <span>{t('cart.discountLabel')}</span>
+              <strong>-{formatCurrency(discountTotal, language, settings.currency)}</strong>
+            </div>
+          )}
           <div className="summary-row">
             <span>{t('common.deliveryFee')}</span>
             <strong>{formatCurrency(deliveryFee, language, settings.currency)}</strong>

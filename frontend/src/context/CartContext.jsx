@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const CART_STORAGE_KEY = 'najem-cart';
+const CART_STORAGE_KEY = 'maghrib-oud-cart';
 const CartContext = createContext(null);
 
 function getInitialCart() {
@@ -49,10 +49,13 @@ function isSameProduct(firstProduct, secondProduct) {
   const secondArabicName = normalizeText(secondProduct?.name_ar);
   const firstEnglishName = normalizeText(firstProduct?.name_en);
   const secondEnglishName = normalizeText(secondProduct?.name_en);
+  const firstFrenchName = normalizeText(firstProduct?.name_fr);
+  const secondFrenchName = normalizeText(secondProduct?.name_fr);
 
   return Boolean(
     (firstArabicName && firstArabicName === secondArabicName) ||
-      (firstEnglishName && firstEnglishName === secondEnglishName)
+      (firstEnglishName && firstEnglishName === secondEnglishName) ||
+      (firstFrenchName && firstFrenchName === secondFrenchName)
   );
 }
 

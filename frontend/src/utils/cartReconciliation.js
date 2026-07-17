@@ -27,14 +27,17 @@ function findBackendMatch(cartItem, backendProducts) {
 
   const cartNameAr = normalizeText(cartItem.name_ar);
   const cartNameEn = normalizeText(cartItem.name_en);
+  const cartNameFr = normalizeText(cartItem.name_fr);
 
   return backendProducts.find((product) => {
     const productNameAr = normalizeText(product.name_ar);
     const productNameEn = normalizeText(product.name_en);
+    const productNameFr = normalizeText(product.name_fr);
 
     return Boolean(
       (cartNameAr && cartNameAr === productNameAr) ||
-        (cartNameEn && cartNameEn === productNameEn)
+        (cartNameEn && cartNameEn === productNameEn) ||
+        (cartNameFr && cartNameFr === productNameFr)
     );
   });
 }
@@ -51,7 +54,7 @@ function getMergeKey(item) {
   const slug = getPossibleSlug(item);
   if (slug) return `slug:${slug}`;
 
-  return `name:${normalizeText(item.name_ar)}:${normalizeText(item.name_en)}`;
+  return `name:${normalizeText(item.name_ar)}:${normalizeText(item.name_en)}:${normalizeText(item.name_fr)}`;
 }
 
 function mergeDuplicateItems(items) {

@@ -1,0 +1,22 @@
+<svg width="600" height="420" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="31%" r="78%">
+      <stop offset="0" stop-color="#2a1310"/>
+      <stop offset="1" stop-color="#070505"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="238" y1="126" x2="370" y2="331">
+      <stop stop-color="#ffe7da"/>
+      <stop offset=".45" stop-color="#9a2727"/>
+      <stop offset="1" stop-color="#2a0b08"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="420" fill="url(#bg)"/>
+  <rect x="34" y="34" width="532" height="352" rx="18" fill="#120b08" stroke="#c8a24a" stroke-width="2.5"/>
+  <ellipse cx="300" cy="332" rx="150" ry="31" fill="#000" opacity=".56"/>
+  <rect x="269" y="92" width="62" height="41" rx="8" fill="#d8aa48"/>
+  <path d="M249 138h102l24 54v103c0 28-22 48-75 48s-75-20-75-48V192l24-54Z" fill="url(#glass)" stroke="#f3c868" stroke-width="5"/>
+  <path d="M300 180c28-30 72-4 48 32-13 20-48 35-48 35s-35-15-48-35c-24-36 20-62 48-32Z" fill="#f1c6b5" opacity=".85"/>
+  <path d="M252 289c24 14 72 18 96 0" stroke="#f0c25b" stroke-width="10" stroke-linecap="round"/>
+  <path d="M410 93c-26 34-23 66 4 99 24 29 22 58-7 88" stroke="#f6efe2" stroke-width="8" stroke-linecap="round" opacity=".46"/>
+  <path d="M196 129c24 29 24 56 0 84" stroke="#c8a24a" stroke-width="6" stroke-linecap="round" opacity=".34"/>
+</svg>

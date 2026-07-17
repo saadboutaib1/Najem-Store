@@ -1,7 +1,7 @@
 {
-  "name": "Najem Store",
-  "short_name": "Najem",
-  "description": "Najem Store هو متجر إلكتروني مغربي للعود والبخور والعطور والمِسواك مع طلب سريع عبر واتساب والدفع عند الاستلام.",
+  "name": "MAGHRIB OUD",
+  "short_name": "مغرب العود",
+  "description": "مغرب العود متجر إلكتروني مغربي للمنتجات الشرقية الراقية مع طلب سريع عبر واتساب والدفع عند الاستلام.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
@@ -9,20 +9,23 @@
   "orientation": "portrait",
   "lang": "ar",
   "dir": "rtl",
-  "categories": ["shopping", "lifestyle"],
+  "categories": [
+    "shopping",
+    "lifestyle"
+  ],
   "background_color": "#0B0B0B",
   "theme_color": "#0B0B0B",
   "icons": [
     {
-      "src": "/pwa/icon-192.svg",
+      "src": "/pwa/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/pwa/icon-512.svg",
+      "src": "/pwa/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
@@ -30,13 +33,13 @@
     {
       "name": "المنتجات",
       "short_name": "المنتجات",
-      "description": "تصفح منتجات Najem Store",
+      "description": "تصفح منتجات مغرب العود",
       "url": "/products",
       "icons": [
         {
-          "src": "/pwa/icon-192.svg",
+          "src": "/pwa/icon-192.png",
           "sizes": "192x192",
-          "type": "image/svg+xml"
+          "type": "image/png"
         }
       ]
     },
@@ -47,9 +50,9 @@
       "url": "/cart",
       "icons": [
         {
-          "src": "/pwa/icon-192.svg",
+          "src": "/pwa/icon-192.png",
           "sizes": "192x192",
-          "type": "image/svg+xml"
+          "type": "image/png"
         }
       ]
     }

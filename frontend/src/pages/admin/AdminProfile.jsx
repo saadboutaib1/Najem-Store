@@ -59,7 +59,7 @@ export default function AdminProfile() {
     event.preventDefault();
     setError('');
 
-    if (!profileForm.name.trim() || !profileForm.email.trim()) {
+    if (!profileForm.email.trim()) {
       setError(ta('common.validationRequired'));
       return;
     }
@@ -93,7 +93,7 @@ export default function AdminProfile() {
     try {
       try {
         await updateProfile({
-          name: profileForm.name.trim(),
+          name: admin?.name || profileForm.name.trim(),
           email: profileForm.email.trim(),
         });
       } catch (profileError) {
@@ -143,7 +143,7 @@ export default function AdminProfile() {
             <span>
               {ta('profile.name')} <em>{ta('common.required')}</em>
             </span>
-            <input name="name" value={profileForm.name} onChange={updateProfileField} required />
+            <input name="name" value={profileForm.name} readOnly required />
           </label>
 
           <label>

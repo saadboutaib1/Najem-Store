@@ -8,6 +8,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use App\Http\Middleware\EnsureAdminIsActive;
+use App\Http\Middleware\SecurityHeaders;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin.active' => EnsureAdminIsActive::class,
+        ]);
+
+        $middleware->api(append: [
+            SecurityHeaders::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => null);

@@ -1,4 +1,4 @@
-# API Routes - Najem Store
+# API Routes - MAGHRIB OUD
 
 ## 1. API Principles
 

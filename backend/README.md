@@ -1,122 +1,73 @@
-# Najem Store Backend
+# MAGHRIB OUD Backend
 
-Laravel API backend for Najem Store, an Arabic-first e-commerce PWA for oud, bakhoor, perfumes, and miswak.
+Laravel 12 API backend for MAGHRIB OUD.
 
 ## Stack
 
-- Laravel 12 API
-- MySQL
-- Laravel Sanctum admin tokens
-- JSON responses
-- Multipart image upload support
-- Cash on Delivery orders stored before WhatsApp checkout
+- Laravel 12
+- PHP 8.2+
+- MySQL-compatible database
+- Laravel Sanctum bearer tokens for admin authentication
+- Laravel filesystem uploads with local public disk or S3-compatible storage
 
 ## Local Setup
 
 ```bash
-cd backend
 composer install
-copy .env.example .env
+cp .env.example .env
 php artisan key:generate
 php artisan storage:link
-php artisan migrate:fresh --seed
+php artisan migrate --seed
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 Create the MySQL database first:
 
 ```sql
-CREATE DATABASE najem_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE maghrib_oud CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-For quick local smoke tests without MySQL, you can temporarily set `DB_CONNECTION=sqlite` in `.env` and create `database/database.sqlite`.
+Set `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` before running seeders if you want a local admin account created automatically.
 
-## Default Admin
+## Production
 
-- Email: `admin@najemstore.com`
-- Password: `password123`
+Use a persistent PHP server or the included Dockerfile. Do not run destructive migration commands in production.
 
-These credentials are for local development only. Change them from the protected profile/password API before production.
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Health endpoint:
+
+```text
+GET /api/health
+```
 
 ## Public API
 
+- `GET /api/health`
 - `GET /api/categories`
 - `GET /api/categories/{slug}`
 - `GET /api/products`
-- `GET /api/products?category=oud`
-- `GET /api/products?search=keyword`
 - `GET /api/products/featured`
 - `GET /api/products/{id}`
 - `GET /api/products/slug/{slug}`
 - `GET /api/settings`
 - `GET /api/social-links`
+- `GET /api/loyalty-points`
 - `POST /api/orders`
 
 ## Admin API
 
-- `POST /api/admin/login`
-- `POST /api/admin/logout`
-- `GET /api/admin/profile`
-- `PUT /api/admin/profile`
-- `PUT /api/admin/change-password`
-- `GET /api/admin/dashboard`
-- `GET|POST|PUT|DELETE /api/admin/categories`
-- `GET|POST|PUT|DELETE /api/admin/products`
-- `GET /api/admin/orders`
-- `GET /api/admin/orders/{id}`
-- `PUT /api/admin/orders/{id}/status`
-- `DELETE /api/admin/orders/{id}`
-- `GET /api/admin/settings`
-- `PUT /api/admin/settings`
-- `GET /api/admin/social-links`
-- `PUT /api/admin/social-links`
-
-Protected admin endpoints require:
+Admin endpoints are under `/api/admin` and require:
 
 ```http
 Authorization: Bearer <token>
 Accept: application/json
 ```
 
-## Order Payload
-
-```json
-{
-  "customer_name": "Customer Name",
-  "customer_phone": "+212600000000",
-  "city": "Casablanca",
-  "address": "Street address",
-  "notes": "Optional",
-  "items": [
-    { "product_id": 1, "quantity": 2 },
-    { "slug": "oud-royal", "quantity": 1 }
-  ]
-}
-```
-
-The backend recalculates product prices from the database, adds the `delivery_fee` setting, stores the order and order items, reduces stock, and returns an order number plus a stored WhatsApp message.
-
-## Images
-
-Products and categories accept either:
-
-- `multipart/form-data` file fields: `main_image`, `image`, `images[]`
-- `image_url` fallback for external or already hosted assets
-
-Uploaded files are stored on the public disk. Run:
-
-```bash
-php artisan storage:link
-```
-
-## Frontend Integration Notes
-
-The product resource returns frontend-friendly aliases:
-
-- `oldPrice`
-- `isFeatured`
-- `category`
-- `category_slug`
-- `image`
-
-Settings and social links are database-backed and available through public endpoints so the frontend can later replace hardcoded `src/config/store.js` values.
+See the root `DEPLOYMENT.md` for production environment variables, storage configuration, and deployment steps.

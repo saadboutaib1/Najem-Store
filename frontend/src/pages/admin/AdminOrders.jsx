@@ -76,8 +76,6 @@ export default function AdminOrders() {
       navigation: ta('pagination.navigation'),
       previous: ta('pagination.previous'),
       next: ta('pagination.next'),
-      summary: ta('pagination.summary'),
-      pageInfo: ta('pagination.pageInfo'),
       pageLabel: ta('pagination.pageLabel'),
     }),
     [language]
@@ -107,7 +105,7 @@ export default function AdminOrders() {
   function formatDate(date) {
     if (!date) return '-';
 
-    return new Date(date).toLocaleDateString(language === 'ar' ? 'ar-MA' : 'en-MA', {
+    return new Date(date).toLocaleDateString(language === 'ar' ? 'ar-MA' : language === 'fr' ? 'fr-MA' : 'en-MA', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

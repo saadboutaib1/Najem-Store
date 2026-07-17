@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import ScrollToTop from './components/common/ScrollToTop.jsx';
+import FloatingWhatsAppButton from './components/common/FloatingWhatsAppButton.jsx';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute.jsx';
 import Header from './components/layout/Header.jsx';
 import Footer from './components/layout/Footer.jsx';
@@ -14,8 +15,10 @@ import ProductDetails from './pages/ProductDetails.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
 import OrderSuccess from './pages/OrderSuccess.jsx';
+import LoyaltyPoints from './pages/LoyaltyPoints.jsx';
 import About from './pages/About.jsx';
 import Contact from './pages/Contact.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import NotFound from './pages/NotFound.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
@@ -36,17 +39,23 @@ function PublicLayout() {
         <Outlet />
       </main>
       <Footer />
+      <FloatingWhatsAppButton />
     </>
   );
 }
 
 function DocumentTitle() {
   const { pathname } = useLocation();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     if (!pathname.startsWith('/admin')) {
-      document.title = 'Najem Store';
+      if (pathname === '/privacy-policy') {
+        document.title = `MAGHRIB OUD | ${t('privacy.title')}`;
+        return;
+      }
+
+      document.title = 'MAGHRIB OUD';
       return;
     }
 
@@ -66,8 +75,8 @@ function DocumentTitle() {
     else if (pathname.startsWith('/admin/settings')) pageTitle = ta('common.settings');
     else if (pathname.startsWith('/admin/profile')) pageTitle = ta('common.profile');
 
-    document.title = `Najem Store | ${pageTitle}`;
-  }, [language, pathname]);
+    document.title = `MAGHRIB OUD | ${pageTitle}`;
+  }, [language, pathname, t]);
 
   return null;
 }
@@ -108,8 +117,10 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/loyalty" element={<LoyaltyPoints />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

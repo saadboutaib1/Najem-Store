@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowLeft, Eye, EyeOff, Languages, Loader2, LockKeyhole, Mail } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo.jsx';
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx';
@@ -14,10 +14,13 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const languageControlRef = useRef(null);
   const { login, isAuthenticated, isChecking } = useAdminAuth();
-  const { language, direction, toggleLanguage } = useLanguage();
+  const { language, languageOptions, direction, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const ta = (path, fallback) => getAdminText(language, path, fallback);
+  const currentLanguage = languageOptions.find((option) => option.value === language) || languageOptions[0];
   const passwordToggleLabel = ta(showPassword ? 'login.hidePassword' : 'login.showPassword');
 
   useEffect(() => {
@@ -30,6 +33,29 @@ export default function AdminLogin() {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
   }
+
+  function handleLanguageSelect(nextLanguage) {
+    setLanguage(nextLanguage);
+    setLanguageMenuOpen(false);
+  }
+
+  useEffect(() => {
+    if (!languageMenuOpen) {
+      return undefined;
+    }
+
+    const closeOnOutsideClick = (event) => {
+      if (languageControlRef.current && !languageControlRef.current.contains(event.target)) {
+        setLanguageMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick);
+    };
+  }, [languageMenuOpen]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -47,17 +73,43 @@ export default function AdminLogin() {
   }
 
   return (
-    <main className="admin-login-screen" dir={direction}>
+    <main className="admin-login-screen" dir={direction} data-text-direction={direction}>
       <section className="admin-login-card">
         <div className="admin-login-card__toolbar">
-          <button className="admin-login-language" type="button" onClick={toggleLanguage} aria-label={ta('common.switchLanguage')}>
-            <Languages size={16} />
-            <span>{language === 'ar' ? 'EN' : 'AR'}</span>
-          </button>
+          <div className="admin-language-control" ref={languageControlRef}>
+            <button
+              className="admin-login-language"
+              type="button"
+              onClick={() => setLanguageMenuOpen((open) => !open)}
+              aria-label={ta('common.switchLanguage')}
+              aria-haspopup="menu"
+              aria-expanded={languageMenuOpen}
+            >
+              <Languages size={16} />
+              <span>{currentLanguage.shortLabel}</span>
+            </button>
+            {languageMenuOpen && (
+              <div className="admin-language-menu admin-language-menu--login" role="menu" aria-label={ta('common.switchLanguage')}>
+                {languageOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`admin-language-menu__item ${option.value === language ? 'admin-language-menu__item--active' : ''}`}
+                    role="menuitemradio"
+                    aria-checked={option.value === language}
+                    onClick={() => handleLanguageSelect(option.value)}
+                  >
+                    <span className="admin-language-menu__code">{option.shortLabel}</span>
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="admin-login-card__brand">
-          <Logo />
+          <Logo full />
         </div>
 
         <div className="admin-login-card__heading">

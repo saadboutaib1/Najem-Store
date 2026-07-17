@@ -1,8 +1,8 @@
-# WhatsApp Checkout Flow - Najem Store
+# WhatsApp Checkout Flow - MAGHRIB OUD
 
 ## 1. Purpose
 
-Najem Store does not use online payment in Version 1. Orders are sent to WhatsApp Business, and payment is Cash on Delivery.
+MAGHRIB OUD does not use online payment in Version 1. Orders are sent to WhatsApp Business, and payment is Cash on Delivery.
 
 The checkout flow must create a clean, complete, readable WhatsApp message so the store can confirm the order manually.
 
@@ -51,7 +51,7 @@ https://wa.me/{WHATSAPP_BUSINESS_NUMBER}?text={ENCODED_MESSAGE}
 ## 6. Message Template
 
 ```text
-طلب جديد - Najem Store
+طلب جديد - MAGHRIB OUD
 
 معلومات الزبون:
 الاسم: {customerName}
@@ -83,7 +83,7 @@ If delivery fee is unavailable, use:
 ## 7. Example Message
 
 ```text
-طلب جديد - Najem Store
+طلب جديد - MAGHRIB OUD
 
 معلومات الزبون:
 الاسم: محمد أمين

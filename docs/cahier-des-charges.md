@@ -1,8 +1,8 @@
-# Cahier Des Charges - Najem Store
+# Cahier Des Charges - MAGHRIB OUD
 
 ## 1. Project Overview
 
-Najem Store is an Arabic-first e-commerce Web App/PWA for traditional oriental products:
+MAGHRIB OUD is an Arabic-first e-commerce Web App/PWA for traditional oriental products:
 
 - العود
 - البخور
@@ -11,11 +11,11 @@ Najem Store is an Arabic-first e-commerce Web App/PWA for traditional oriental p
 
 Arabic description:
 
-> Najem Store هو متجر إلكتروني متخصص في أجود أنواع العود والبخور والعطور والمِسواك، يجمع بين الأصالة والفخامة ليقدّم للزبون تجربة تسوّق سهلة، راقية وموثوقة.
+> MAGHRIB OUD هو متجر إلكتروني متخصص في أجود أنواع العود والبخور والعطور والمِسواك، يجمع بين الأصالة والفخامة ليقدّم للزبون تجربة تسوّق سهلة، راقية وموثوقة.
 
 English description:
 
-> Najem Store is an online store specialized in premium oud, bakhoor, perfumes and miswak, combining authenticity and luxury to offer a simple, elegant and trusted shopping experience.
+> MAGHRIB OUD is an online store specialized in premium oud, bakhoor, perfumes and miswak, combining authenticity and luxury to offer a simple, elegant and trusted shopping experience.
 
 The app will be a web application with PWA capabilities. A native mobile app is not part of the first release.
 
@@ -80,7 +80,7 @@ The app will be a web application with PWA capabilities. A native mobile app is 
 
 ## 5. User Journey
 
-1. The user opens Najem Store.
+1. The user opens MAGHRIB OUD.
 2. The interface loads in Arabic with RTL layout.
 3. The user explores categories or searches for products.
 4. The user opens a product detail page.
@@ -169,7 +169,7 @@ The message must be URL encoded and opened through the WhatsApp Business number 
 - Service worker for caching static assets and selected public catalog data.
 - Offline fallback page.
 - App icons in multiple sizes.
-- Theme color based on the Najem Store luxury palette.
+- Theme color based on the MAGHRIB OUD luxury palette.
 - Mobile-first responsive layout.
 - RTL-first rendering.
 

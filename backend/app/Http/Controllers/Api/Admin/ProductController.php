@@ -49,6 +49,13 @@ class ProductController extends Controller
 
     public function destroy(Product $product): mixed
     {
+        $product->load('images');
+        $this->images->delete($product->main_image);
+
+        foreach ($product->images as $image) {
+            $this->images->delete($image->image);
+        }
+
         $product->delete();
 
         return $this->success(null, 'Product deleted.');
@@ -56,6 +63,8 @@ class ProductController extends Controller
 
     private function payload(array $data, ?Product $product = null): array
     {
+        $removeImage = filter_var($data['remove_image'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
         if (empty($data['slug']) && isset($data['name_en'])) {
             $data['slug'] = Str::slug($data['name_en']);
         }
@@ -69,14 +78,19 @@ class ProductController extends Controller
         }
 
         if (request()->hasFile('main_image')) {
+            $this->images->delete($product?->main_image);
             $data['main_image'] = $this->images->store(request()->file('main_image'), 'products');
         } elseif (!empty($data['image_url'])) {
+            $this->images->delete($product?->main_image);
             $data['main_image'] = $data['image_url'];
+        } elseif ($removeImage) {
+            $this->images->delete($product?->main_image);
+            $data['main_image'] = null;
         }
 
-        unset($data['oldPrice'], $data['isFeatured'], $data['image_url'], $data['images']);
+        unset($data['oldPrice'], $data['isFeatured'], $data['image_url'], $data['remove_image'], $data['images']);
 
-        return array_filter($data, fn ($value) => $value !== null);
+        return array_filter($data, fn ($value, $key) => $value !== null || $key === 'main_image', ARRAY_FILTER_USE_BOTH);
     }
 
     private function storeGalleryImages(Product $product): void

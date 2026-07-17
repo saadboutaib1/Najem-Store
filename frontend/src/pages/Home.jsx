@@ -39,13 +39,9 @@ export default function Home() {
       text: t('home.whyItems.trustText'),
     },
   ];
-  const loadingText = language === 'ar' ? 'جارٍ تحميل الأقسام...' : 'Loading categories...';
-  const loadingFeaturedText =
-    language === 'ar' ? 'جارٍ تحميل المنتجات المختارة...' : 'Loading featured products...';
-  const offlineText =
-    language === 'ar'
-      ? 'تعذر الاتصال بالخادم حاليًا، يتم عرض بيانات محلية مؤقتة.'
-      : 'Backend is offline right now, local demo data is shown.';
+  const loadingText = t('common.loadingCategories');
+  const loadingFeaturedText = t('common.loadingFeaturedProducts');
+  const offlineText = t('common.catalogOffline');
 
   useEffect(() => {
     let isMounted = true;
@@ -90,10 +86,20 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero hero--titleless">
+        <video
+          className="hero__video"
+          src="/brand/hero-video.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
         <div className="container hero__content">
+          <h1 className="sr-only">{t('common.storeName')}</h1>
           <span className="eyebrow">{t('home.eyebrow')}</span>
-          <h1>{t('home.title')}</h1>
           <p>{t('home.description')}</p>
           <div className="hero__actions">
             <Link to="/products" className="button button--gold">
@@ -110,9 +116,7 @@ export default function Home() {
 
       <section className="section">
         <div className="container section-heading">
-          <span className="eyebrow">{t('nav.categories')}</span>
           <h2>{t('home.categoriesTitle')}</h2>
-          <p>{t('home.categoriesSubtitle')}</p>
         </div>
         {catalogStatus.isLoading && <div className="catalog-loading" role="status" aria-label={loadingText} />}
         {!catalogStatus.isLoading && catalogStatus.error && <p className="catalog-notice">{catalogStatus.error}</p>}
@@ -126,9 +130,7 @@ export default function Home() {
       {(catalogStatus.isLoading || featuredProducts.length > 0) && (
         <section className="section home-featured-section">
           <div className="container section-heading">
-            <span className="eyebrow">NAJEM STORE</span>
             <h2>{t('home.featuredTitle')}</h2>
-            <p>{t('home.featuredSubtitle')}</p>
           </div>
           {catalogStatus.isLoading && <div className="catalog-loading" role="status" aria-label={loadingFeaturedText} />}
           <div className="container product-grid home-featured-grid" aria-busy={catalogStatus.isLoading}>

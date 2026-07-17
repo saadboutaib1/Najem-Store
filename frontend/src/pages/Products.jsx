@@ -30,11 +30,8 @@ export default function Products() {
     selectedCategory === 'all'
       ? null
       : categories.find((category) => category.slug === selectedCategory);
-  const loadingText = language === 'ar' ? 'جارٍ تحميل المنتجات...' : 'Loading products...';
-  const offlineText =
-    language === 'ar'
-      ? 'تعذر الاتصال بالخادم حاليًا، يتم عرض بيانات محلية مؤقتة.'
-      : 'Backend is offline right now, local demo data is shown.';
+  const loadingText = t('common.loadingProducts');
+  const offlineText = t('common.catalogOffline');
 
   const filteredProducts = useMemo(() => {
     return filterProductList(products, { category: selectedCategory, searchTerm, language });
@@ -109,7 +106,7 @@ export default function Products() {
   return (
     <section className="page-section">
       <div className="container section-heading">
-        <span className="eyebrow">Najem Store</span>
+        <span className="eyebrow">MAGHRIB OUD</span>
         <h1>
           {activeCategory ? getLocalizedField(activeCategory, 'name', language) : t('products.title')}
         </h1>

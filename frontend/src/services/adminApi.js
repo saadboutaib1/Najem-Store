@@ -1,6 +1,6 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace(/\/+$/, '');
+import { buildApiUrl } from '../config/api.js';
 export const ADMIN_TOKEN_KEY = 'admin_token';
-export const ADMIN_SESSION_EXPIRED_EVENT = 'najem-admin-session-expired';
+export const ADMIN_SESSION_EXPIRED_EVENT = 'maghrib-oud-admin-session-expired';
 
 let adminToken = null;
 
@@ -14,6 +14,22 @@ export class AdminApiError extends Error {
 }
 
 export function getAdminToken() {
+  if (adminToken) return adminToken;
+
+  try {
+    adminToken = sessionStorage.getItem(ADMIN_TOKEN_KEY) || null;
+    const legacyToken = localStorage.getItem(ADMIN_TOKEN_KEY);
+
+    if (!adminToken && legacyToken) {
+      adminToken = legacyToken;
+      sessionStorage.setItem(ADMIN_TOKEN_KEY, legacyToken);
+    }
+
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+  } catch {
+    adminToken = null;
+  }
+
   return adminToken;
 }
 
@@ -23,6 +39,10 @@ export function setAdminToken(token) {
   try {
     localStorage.removeItem(ADMIN_TOKEN_KEY);
     sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+
+    if (adminToken) {
+      sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+    }
   } catch {
     // Storage can be unavailable in private or restricted browser contexts.
   }
@@ -37,19 +57,6 @@ export function clearAdminToken() {
   } catch {
     // Storage can be unavailable in private or restricted browser contexts.
   }
-}
-
-function buildUrl(endpoint, params = {}) {
-  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = new URL(`${API_BASE_URL}${path}`);
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      url.searchParams.set(key, value);
-    }
-  });
-
-  return url.toString();
 }
 
 function isFormData(body) {
@@ -68,7 +75,6 @@ function prepareMutationPayload(data, method = 'PUT') {
 
   return { method, body: data };
 }
-
 async function adminRequest(endpoint, options = {}) {
   const {
     method = 'GET',
@@ -82,7 +88,7 @@ async function adminRequest(endpoint, options = {}) {
   const formDataBody = isFormData(body);
 
   try {
-    const response = await fetch(buildUrl(endpoint, params), {
+    const response = await fetch(buildApiUrl(endpoint, params), {
       method,
       headers: {
         Accept: 'application/json',
@@ -111,7 +117,7 @@ async function adminRequest(endpoint, options = {}) {
       throw error;
     }
 
-    throw new AdminApiError('Backend admin API is not available right now.', 0, error);
+    throw new AdminApiError('The admin service is not available right now.', 0, error);
   }
 }
 

@@ -14,20 +14,29 @@ class ProductController extends Controller
 
     public function index(Request $request): mixed
     {
+        $filters = $request->validate([
+            'category' => ['nullable', 'string', 'max:255'],
+            'search' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $category = $filters['category'] ?? null;
+        $search = isset($filters['search']) ? trim((string) $filters['search']) : null;
+
         $products = Product::query()
             ->with(['category', 'images'])
             ->where('status', 'active')
-            ->when($request->filled('category'), function ($query) use ($request): void {
-                $query->whereHas('category', fn ($categoryQuery) => $categoryQuery->where('slug', $request->string('category')));
+            ->when($category, function ($query) use ($category): void {
+                $query->whereHas('category', fn ($categoryQuery) => $categoryQuery->where('slug', $category));
             })
-            ->when($request->filled('search'), function ($query) use ($request): void {
-                $search = $request->string('search');
+            ->when($search, function ($query) use ($search): void {
                 $query->where(function ($searchQuery) use ($search): void {
                     $searchQuery
                         ->where('name_ar', 'like', "%{$search}%")
                         ->orWhere('name_en', 'like', "%{$search}%")
+                        ->orWhere('name_fr', 'like', "%{$search}%")
                         ->orWhere('description_ar', 'like', "%{$search}%")
-                        ->orWhere('description_en', 'like', "%{$search}%");
+                        ->orWhere('description_en', 'like', "%{$search}%")
+                        ->orWhere('description_fr', 'like', "%{$search}%");
                 });
             })
             ->latest()

@@ -1,0 +1,24 @@
+<svg width="600" height="420" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="48%" cy="32%" r="80%">
+      <stop offset="0" stop-color="#29150d"/>
+      <stop offset="1" stop-color="#070505"/>
+    </radialGradient>
+    <linearGradient id="cup" x1="210" y1="158" x2="390" y2="342">
+      <stop stop-color="#e7c06a"/>
+      <stop offset=".45" stop-color="#8f4e1b"/>
+      <stop offset="1" stop-color="#211008"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="420" fill="url(#bg)"/>
+  <rect x="34" y="34" width="532" height="352" rx="18" fill="#120b08" stroke="#c8a24a" stroke-width="2.5"/>
+  <ellipse cx="300" cy="326" rx="166" ry="34" fill="#000" opacity=".56"/>
+  <path d="M211 246c13 61 42 89 89 89s77-28 90-89H211Z" fill="url(#cup)"/>
+  <path d="M195 238c18 27 193 27 210 0-22-30-188-30-210 0Z" fill="#d8aa48"/>
+  <path d="M235 238c17 12 113 12 130 0-23-10-108-10-130 0Z" fill="#150905"/>
+  <path d="M252 275c18 14 78 14 96 0" stroke="#2d1208" stroke-width="8" stroke-linecap="round"/>
+  <path d="M247 197c-37-38 30-52-5-97" stroke="#f6efe2" stroke-width="10" stroke-linecap="round" opacity=".53"/>
+  <path d="M300 199c-52-56 46-73-5-132" stroke="#d8aa48" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+  <path d="M354 197c-36-44 34-58-4-106" stroke="#f6efe2" stroke-width="8" stroke-linecap="round" opacity=".45"/>
+  <path d="M197 307h206" stroke="#c8a24a" stroke-width="5" stroke-linecap="round" opacity=".46"/>
+</svg>

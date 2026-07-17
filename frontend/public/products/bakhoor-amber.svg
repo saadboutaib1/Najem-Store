@@ -1,0 +1,24 @@
+<svg width="600" height="420" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="48%" cy="32%" r="78%">
+      <stop offset="0" stop-color="#30170d"/>
+      <stop offset="1" stop-color="#070505"/>
+    </radialGradient>
+    <linearGradient id="amber" x1="205" y1="130" x2="415" y2="310">
+      <stop stop-color="#ffd372"/>
+      <stop offset=".45" stop-color="#c46f1f"/>
+      <stop offset="1" stop-color="#522006"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="420" fill="url(#bg)"/>
+  <rect x="34" y="34" width="532" height="352" rx="18" fill="#120b08" stroke="#c8a24a" stroke-width="2.5"/>
+  <ellipse cx="300" cy="322" rx="180" ry="35" fill="#000" opacity=".56"/>
+  <path d="M158 258c38 62 245 62 283 0H158Z" fill="#7b4218"/>
+  <path d="M145 248c48 34 263 34 310 0-42-25-268-25-310 0Z" fill="#d6a044"/>
+  <path d="M197 238l39-66 70 24-41 66-68-24Z" fill="url(#amber)" stroke="#f2c362" stroke-width="4"/>
+  <path d="M292 226l51-76 66 34-51 77-66-35Z" fill="url(#amber)" stroke="#f2c362" stroke-width="4"/>
+  <path d="M249 291l35-58 72 26-36 58-71-26Z" fill="url(#amber)" stroke="#f2c362" stroke-width="4"/>
+  <path d="M247 154c-34-34 24-49-10-88" stroke="#f6efe2" stroke-width="9" stroke-linecap="round" opacity=".48"/>
+  <path d="M337 138c-37-42 34-56-8-101" stroke="#d8aa48" stroke-width="9" stroke-linecap="round" opacity=".68"/>
+  <path d="M415 100c-22 30-20 56 5 83 24 26 22 53-7 79" stroke="#f6efe2" stroke-width="7" stroke-linecap="round" opacity=".45"/>
+</svg>

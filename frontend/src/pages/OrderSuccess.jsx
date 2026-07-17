@@ -6,7 +6,7 @@ import { formatCurrency } from '../utils/formatters.js';
 
 function getSavedOrderState() {
   try {
-    const savedOrder = sessionStorage.getItem('najem-last-order');
+    const savedOrder = sessionStorage.getItem('maghrib-oud-last-order');
     return savedOrder ? JSON.parse(savedOrder) : null;
   } catch {
     return null;
@@ -26,7 +26,7 @@ export default function OrderSuccess() {
           <span className="order-success__icon" aria-hidden="true">
             <MessageCircle size={34} />
           </span>
-          <span className="eyebrow">Najem Store</span>
+          <span className="eyebrow">MAGHRIB OUD</span>
           <h1>{t('orderSuccess.missingTitle')}</h1>
           <p>{t('orderSuccess.missingText')}</p>
           <div className="order-success__actions">
@@ -50,7 +50,7 @@ export default function OrderSuccess() {
         <span className="order-success__icon order-success__icon--success" aria-hidden="true">
           <CheckCircle2 size={38} />
         </span>
-        <span className="eyebrow">Najem Store</span>
+        <span className="eyebrow">MAGHRIB OUD</span>
         <h1>{t('orderSuccess.title')}</h1>
         <p>{t('orderSuccess.subtitle')}</p>
 

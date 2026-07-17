@@ -1,8 +1,8 @@
-# Branding - Najem Store
+# Branding - MAGHRIB OUD
 
 ## 1. Brand Identity
 
-Najem Store should feel luxurious, oriental, warm, trustworthy, and refined. The visual identity should support traditional products without becoming visually heavy.
+MAGHRIB OUD should feel luxurious, oriental, warm, trustworthy, and refined. The visual identity should support traditional products without becoming visually heavy.
 
 Brand keywords:
 
@@ -18,24 +18,24 @@ Brand keywords:
 Primary name:
 
 ```text
-Najem Store
+MAGHRIB OUD
 ```
 
-Arabic writing can be introduced later if desired:
+Arabic name:
 
 ```text
-متجر نجم
+مغرب العود
 ```
 
 ## 3. Brand Description
 
 Arabic:
 
-> Najem Store هو متجر إلكتروني متخصص في أجود أنواع العود والبخور والعطور والمِسواك، يجمع بين الأصالة والفخامة ليقدّم للزبون تجربة تسوّق سهلة، راقية وموثوقة.
+> MAGHRIB OUD هو متجر إلكتروني متخصص في أجود أنواع العود والبخور والعطور والمِسواك، يجمع بين الأصالة والفخامة ليقدّم للزبون تجربة تسوّق سهلة، راقية وموثوقة.
 
 English:
 
-> Najem Store is an online store specialized in premium oud, bakhoor, perfumes and miswak, combining authenticity and luxury to offer a simple, elegant and trusted shopping experience.
+> MAGHRIB OUD is an online store specialized in premium oud, bakhoor, perfumes and miswak, combining authenticity and luxury to offer a simple, elegant and trusted shopping experience.
 
 ## 4. Color Palette
 
@@ -72,16 +72,16 @@ Typography principles:
 The original SVG logo is located at:
 
 ```text
-frontend/public/brand/najem-store-logo.svg
+frontend/public/brand/maghrib-oud-logo-transparent.png
 ```
 
 The logo combines:
 
-- a star/najem symbol
+- an oud and incense symbol
 - a perfume bottle silhouette
 - incense smoke lines
 - gold luxury styling
-- clean readable text "Najem Store"
+- clean readable text "MAGHRIB OUD"
 
 ## 7. UI Style Direction
 

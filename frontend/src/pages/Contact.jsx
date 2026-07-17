@@ -119,7 +119,7 @@ export default function Contact() {
       <div className="container contact-compact-stack">
         <div className="contact-compact-hero">
           <div className="contact-compact-copy">
-            <span className="eyebrow">NAJEM STORE</span>
+            <span className="eyebrow">MAGHRIB OUD</span>
             <h1>{t('contact.title')}</h1>
             <p>{t('contact.subtitle')}</p>
           </div>
@@ -148,6 +148,7 @@ export default function Contact() {
               onChange={(event) => updateField('fullName', event.target.value)}
               type="text"
               autoComplete="name"
+              dir="auto"
               required
             />
           </label>
@@ -159,6 +160,7 @@ export default function Contact() {
               type="tel"
               autoComplete="tel"
               inputMode="tel"
+              dir="ltr"
               required
             />
           </label>
@@ -168,6 +170,7 @@ export default function Contact() {
               value={formData.message}
               onChange={(event) => updateField('message', event.target.value)}
               rows="4"
+              dir="auto"
               required
             />
           </label>

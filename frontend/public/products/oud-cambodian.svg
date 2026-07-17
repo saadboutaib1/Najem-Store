@@ -1,0 +1,30 @@
+<svg width="600" height="420" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="46%" cy="30%" r="76%">
+      <stop offset="0" stop-color="#30170d"/>
+      <stop offset="1" stop-color="#070505"/>
+    </radialGradient>
+    <linearGradient id="bowl" x1="160" y1="236" x2="444" y2="344">
+      <stop stop-color="#f0c464"/>
+      <stop offset=".55" stop-color="#9b5a20"/>
+      <stop offset="1" stop-color="#3b1708"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="185" y1="104" x2="398" y2="284">
+      <stop stop-color="#2b1106"/>
+      <stop offset=".48" stop-color="#8d4c1b"/>
+      <stop offset="1" stop-color="#160703"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="420" fill="url(#bg)"/>
+  <rect x="34" y="34" width="532" height="352" rx="18" fill="#120b08" stroke="#c8a24a" stroke-width="2.5"/>
+  <ellipse cx="300" cy="326" rx="184" ry="34" fill="#000" opacity=".58"/>
+  <path d="M158 258c36 67 248 69 287 0H158Z" fill="url(#bowl)"/>
+  <path d="M146 248c40 34 274 34 313 0-32-26-280-26-313 0Z" fill="#d8aa48"/>
+  <path d="M185 247c34 15 196 15 232 0-42-14-190-14-232 0Z" fill="#1c0c06"/>
+  <path d="M195 229l43-128c50 28 62 79 36 145l-79-17Z" fill="url(#chip)"/>
+  <path d="M293 236l28-145c61 39 81 94 45 162l-73-17Z" fill="url(#chip)"/>
+  <path d="M244 235l108-111c31 62 18 114-39 148l-69-37Z" fill="url(#chip)"/>
+  <path d="M220 198c31 16 60 23 88 22" stroke="#c28a35" stroke-width="6" stroke-linecap="round" opacity=".62"/>
+  <path d="M322 187c28 18 53 27 79 28" stroke="#c28a35" stroke-width="6" stroke-linecap="round" opacity=".55"/>
+  <path d="M455 80c-32 43-30 79 3 119 30 36 26 69-8 103" stroke="#f6efe2" stroke-width="9" stroke-linecap="round" opacity=".5"/>
+</svg>

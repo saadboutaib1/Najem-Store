@@ -21,6 +21,6 @@ class ImageUrl
             return rtrim(config('app.frontend_url'), '/').$path;
         }
 
-        return url(Storage::url($path));
+        return Storage::disk(config('filesystems.uploads_disk', 'public'))->url($path);
     }
 }

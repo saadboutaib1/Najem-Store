@@ -1,4 +1,4 @@
-# Development Plan - Najem Store
+# Development Plan - MAGHRIB OUD
 
 ## Phase 0 - Architecture And Documentation
 
@@ -39,7 +39,7 @@ Deliverables:
 - RTL-first layout.
 - Arabic default language.
 - English language switch.
-- Theme tokens using Najem Store palette.
+- Theme tokens using MAGHRIB OUD palette.
 - Responsive navigation.
 - PWA manifest.
 - Service worker.

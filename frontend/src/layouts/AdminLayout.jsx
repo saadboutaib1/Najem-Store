@@ -11,7 +11,7 @@ import {
   UserRound,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import Logo from '../components/common/Logo.jsx';
 import { useAdminAuth } from '../context/AdminAuthContext.jsx';
@@ -20,10 +20,13 @@ import { getAdminText } from '../i18n/admin.js';
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const languageControlRef = useRef(null);
   const { admin, logout } = useAdminAuth();
-  const { language, toggleLanguage, direction } = useLanguage();
+  const { language, languageOptions, setLanguage, direction } = useLanguage();
   const navigate = useNavigate();
   const ta = (path, fallback) => getAdminText(language, path, fallback);
+  const currentLanguage = languageOptions.find((option) => option.value === language) || languageOptions[0];
 
   const navItems = [
     { to: '/admin/dashboard', label: ta('common.dashboard'), icon: Gauge },
@@ -39,8 +42,32 @@ export default function AdminLayout() {
     navigate('/admin/login', { replace: true });
   }
 
+  function handleLanguageSelect(nextLanguage) {
+    setLanguage(nextLanguage);
+    setLanguageMenuOpen(false);
+    setSidebarOpen(false);
+  }
+
+  useEffect(() => {
+    if (!languageMenuOpen) {
+      return undefined;
+    }
+
+    const closeOnOutsideClick = (event) => {
+      if (languageControlRef.current && !languageControlRef.current.contains(event.target)) {
+        setLanguageMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick);
+    };
+  }, [languageMenuOpen]);
+
   return (
-    <div className="admin-shell" dir={direction}>
+    <div className="admin-shell" dir={direction} data-text-direction={direction}>
       <aside
         id="admin-sidebar"
         className={`admin-sidebar ${sidebarOpen ? 'admin-sidebar--open' : ''}`}
@@ -67,7 +94,10 @@ export default function AdminLayout() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) => `admin-nav__link ${isActive ? 'admin-nav__link--active' : ''}`}
-                onClick={() => setSidebarOpen(false)}
+                onClick={() => {
+                  setSidebarOpen(false);
+                  setLanguageMenuOpen(false);
+                }}
               >
                 <Icon size={18} />
                 <span>{item.label}</span>
@@ -76,20 +106,40 @@ export default function AdminLayout() {
           })}
         </nav>
 
-        <Link className="admin-nav__link admin-nav__link--store" to="/" onClick={() => setSidebarOpen(false)}>
+        <Link
+          className="admin-nav__link admin-nav__link--store"
+          to="/"
+          onClick={() => {
+            setSidebarOpen(false);
+            setLanguageMenuOpen(false);
+          }}
+        >
           <Store size={18} />
           <span>{ta('common.backToStore')}</span>
         </Link>
       </aside>
 
-      {sidebarOpen && <button className="admin-overlay" type="button" aria-label={ta('common.closeMenu')} onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && (
+        <button
+          className="admin-overlay"
+          type="button"
+          aria-label={ta('common.closeMenu')}
+          onClick={() => {
+            setSidebarOpen(false);
+            setLanguageMenuOpen(false);
+          }}
+        />
+      )}
 
       <div className="admin-content">
         <header className="admin-topbar">
           <button
             className="admin-icon-button admin-menu-button"
             type="button"
-            onClick={() => setSidebarOpen((current) => !current)}
+            onClick={() => {
+              setSidebarOpen((current) => !current);
+              setLanguageMenuOpen(false);
+            }}
             aria-label={ta('common.openMenu')}
             aria-controls="admin-sidebar"
             aria-expanded={sidebarOpen}
@@ -99,14 +149,40 @@ export default function AdminLayout() {
 
           <div className="admin-topbar__title">
             <span>{ta('common.admin')}</span>
-            <strong>{admin?.name || 'Najem Store'}</strong>
+            <strong>{admin?.name || 'MAGHRIB OUD'}</strong>
           </div>
 
           <div className="admin-topbar__actions">
-            <button className="admin-topbar-button admin-topbar-button--language" type="button" onClick={toggleLanguage} aria-label={ta('common.switchLanguage')}>
-              <Globe2 size={16} />
-              <span>{language === 'ar' ? 'EN' : 'AR'}</span>
-            </button>
+            <div className="admin-language-control" ref={languageControlRef}>
+              <button
+                className="admin-topbar-button admin-topbar-button--language"
+                type="button"
+                onClick={() => setLanguageMenuOpen((open) => !open)}
+                aria-label={ta('common.switchLanguage')}
+                aria-haspopup="menu"
+                aria-expanded={languageMenuOpen}
+              >
+                <Globe2 size={16} />
+                <span>{currentLanguage.shortLabel}</span>
+              </button>
+              {languageMenuOpen && (
+                <div className="admin-language-menu" role="menu" aria-label={ta('common.switchLanguage')}>
+                  {languageOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`admin-language-menu__item ${option.value === language ? 'admin-language-menu__item--active' : ''}`}
+                      role="menuitemradio"
+                      aria-checked={option.value === language}
+                      onClick={() => handleLanguageSelect(option.value)}
+                    >
+                      <span className="admin-language-menu__code">{option.shortLabel}</span>
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button className="admin-topbar-button admin-topbar-button--danger" type="button" onClick={handleLogout}>
               <LogOut size={16} />
               <span>{ta('common.logout')}</span>

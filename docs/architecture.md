@@ -1,8 +1,8 @@
-# Architecture - Najem Store
+# Architecture - MAGHRIB OUD
 
 ## 1. Architecture Goal
 
-Najem Store should start as a clean Web App/PWA with a clear separation between frontend, backend, database, and external communication channels.
+MAGHRIB OUD should start as a clean Web App/PWA with a clear separation between frontend, backend, database, and external communication channels.
 
 The architecture must support:
 

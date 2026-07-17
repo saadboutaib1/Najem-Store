@@ -36,20 +36,9 @@ export default function Pagination({
   }
 
   const currentPage = Math.min(Math.max(page, 1), totalPages);
-  const firstItem = (currentPage - 1) * safePageSize + 1;
-  const lastItem = Math.min(currentPage * safePageSize, totalItems);
   const visiblePages = getVisiblePages(currentPage, totalPages);
   const PreviousIcon = direction === 'rtl' ? ChevronRight : ChevronLeft;
   const NextIcon = direction === 'rtl' ? ChevronLeft : ChevronRight;
-  const summary = fillTemplate(t('pagination.summary'), {
-    from: firstItem,
-    to: lastItem,
-    total: totalItems,
-  });
-  const pageInfo = fillTemplate(t('pagination.pageInfo'), {
-    page: currentPage,
-    pages: totalPages,
-  });
 
   function goToPage(nextPage) {
     const safePage = Math.min(Math.max(nextPage, 1), totalPages);
@@ -117,11 +106,6 @@ export default function Pagination({
           </>
         )}
       </div>
-
-      <span className="pagination__status">
-        <strong>{summary}</strong>
-        <span>{pageInfo}</span>
-      </span>
 
       <button
         type="button"

@@ -28,10 +28,13 @@ class Order extends Model
         'notes',
         'subtotal',
         'delivery_fee',
+        'discount_total',
         'total',
         'payment_method',
         'status',
         'whatsapp_message',
+        'loyalty_points_earned',
+        'loyalty_points_awarded_at',
     ];
 
     protected function casts(): array
@@ -39,7 +42,10 @@ class Order extends Model
         return [
             'subtotal' => 'decimal:2',
             'delivery_fee' => 'decimal:2',
+            'discount_total' => 'decimal:2',
             'total' => 'decimal:2',
+            'loyalty_points_earned' => 'integer',
+            'loyalty_points_awarded_at' => 'datetime',
         ];
     }
 

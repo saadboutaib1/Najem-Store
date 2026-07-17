@@ -6,6 +6,9 @@ const currencyAliases = {
   'د.م.': 'MAD',
   'د.م': 'MAD',
   درهم: 'MAD',
+  'د.م.': 'MAD',
+  'د.م': 'MAD',
+  درهم: 'MAD',
 };
 
 export function normalizeCurrencyCode(currency = STORE_CONFIG.currency) {
@@ -30,7 +33,7 @@ export function getCurrencyLabel(language = 'ar', currency = STORE_CONFIG.curren
 
 export function formatCurrency(value, language = 'ar', currency = STORE_CONFIG.currency) {
   const amount = Number(value || 0);
-  const locale = language === 'ar' ? 'ar-MA' : 'en-MA';
+  const locale = language === 'ar' ? 'ar-MA' : language === 'fr' ? 'fr-MA' : 'en-MA';
 
   try {
     const formattedAmount = new Intl.NumberFormat(locale, {
@@ -44,23 +47,43 @@ export function formatCurrency(value, language = 'ar', currency = STORE_CONFIG.c
 }
 
 export function getLocalizedField(item, field, language) {
-  return item[`${field}_${language}`] || item[`${field}_ar`] || item[`${field}_en`] || '';
+  if (item[`${field}_${language}`]) {
+    return item[`${field}_${language}`];
+  }
+
+  if (language === 'ar') {
+    return item[`${field}_ar`] || item[`${field}_en`] || '';
+  }
+
+  return item[`${field}_en`] || item[`${field}_ar`] || '';
 }
 
 export function formatStock(stock, language = 'ar') {
   const count = Number(stock || 0);
 
   if (count <= 0) {
-    return language === 'ar' ? 'نفد المخزون' : 'Out of stock';
+    if (language === 'ar') {
+      return 'نفد المخزون';
+    }
+
+    return language === 'fr' ? 'Rupture de stock' : 'Out of stock';
   }
 
   try {
-    const formattedCount = new Intl.NumberFormat(language === 'ar' ? 'ar-MA' : 'en-MA', {
+    const formattedCount = new Intl.NumberFormat(language === 'ar' ? 'ar-MA' : language === 'fr' ? 'fr-MA' : 'en-MA', {
       maximumFractionDigits: 0,
     }).format(count);
 
-    return language === 'ar' ? `المخزون: ${formattedCount}` : `Stock: ${formattedCount}`;
+    if (language === 'ar') {
+      return `المخزون: ${formattedCount}`;
+    }
+
+    return language === 'fr' ? `Stock : ${formattedCount}` : `Stock: ${formattedCount}`;
   } catch {
-    return language === 'ar' ? `المخزون: ${count}` : `Stock: ${count}`;
+    if (language === 'ar') {
+      return `المخزون: ${count}`;
+    }
+
+    return language === 'fr' ? `Stock : ${count}` : `Stock: ${count}`;
   }
 }

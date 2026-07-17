@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api').replace(/\/+$/, '');
+import { buildApiUrl } from '../config/api.js';
 
 export class ApiError extends Error {
   constructor(message, status = 0, details = null) {
@@ -9,24 +9,11 @@ export class ApiError extends Error {
   }
 }
 
-function buildUrl(endpoint, params = {}) {
-  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = new URL(`${API_BASE_URL}${path}`);
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      url.searchParams.set(key, value);
-    }
-  });
-
-  return url.toString();
-}
-
 async function request(endpoint, options = {}) {
   const { params, body, method = 'GET', raw = false } = options;
 
   try {
-    const response = await fetch(buildUrl(endpoint, params), {
+    const response = await fetch(buildApiUrl(endpoint, params), {
       method,
       headers: {
         Accept: 'application/json',
@@ -53,7 +40,7 @@ async function request(endpoint, options = {}) {
       throw error;
     }
 
-    throw new ApiError('Backend is not available right now.', 0, error);
+    throw new ApiError('The store service is not available right now.', 0, error);
   }
 }
 
@@ -73,12 +60,22 @@ export function getProduct(id) {
   return request(`/products/${encodeURIComponent(id)}`);
 }
 
+export function getProductBySlug(slug) {
+  return request(`/products/slug/${encodeURIComponent(slug)}`);
+}
+
 export function getSettings() {
   return request('/settings');
 }
 
 export function getSocialLinks() {
   return request('/social-links');
+}
+
+export function getLoyaltyPoints(phone) {
+  return request('/loyalty-points', {
+    params: { phone },
+  });
 }
 
 export function createOrder(orderData) {

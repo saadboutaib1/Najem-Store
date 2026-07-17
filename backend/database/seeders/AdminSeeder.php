@@ -9,11 +9,19 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
+        $email = env('ADMIN_SEED_EMAIL');
+        $password = env('ADMIN_SEED_PASSWORD');
+
+        if (!$email || !$password) {
+            $this->command?->warn('AdminSeeder skipped: ADMIN_SEED_EMAIL and ADMIN_SEED_PASSWORD are not configured.');
+            return;
+        }
+
         Admin::query()->updateOrCreate(
-            ['email' => 'admin@najemstore.com'],
+            ['email' => $email],
             [
-                'name' => 'Najem Store Admin',
-                'password' => 'password123',
+                'name' => env('ADMIN_SEED_NAME', 'MAGHRIB OUD Admin'),
+                'password' => $password,
                 'role' => 'admin',
                 'status' => 'active',
             ]

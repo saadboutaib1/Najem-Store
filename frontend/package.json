@@ -1,5 +1,5 @@
 {
-  "name": "najem-store-frontend",
+  "name": "maghrib-oud-frontend",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -15,7 +15,7 @@
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.8"
+    "@vitejs/plugin-react": "^6.0.3",
+    "vite": "^8.1.5"
   }
 }

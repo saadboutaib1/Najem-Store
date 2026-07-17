@@ -1,17 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { STORE_CONFIG } from '../config/store.js';
 import { getSettings, getSocialLinks } from '../services/api.js';
+import { normalizeBuy2Offer, normalizeLoyaltySettings } from '../utils/promotions.js';
+import { buildWhatsAppLink, buildWhatsAppUrl } from '../utils/whatsappLink.js';
 
 const StoreDataContext = createContext(null);
-
-function sanitizeWhatsAppNumber(phoneNumber = '') {
-  return phoneNumber.replace(/[^\d]/g, '');
-}
-
-function buildWhatsAppLink(phoneNumber) {
-  const sanitizedNumber = sanitizeWhatsAppNumber(phoneNumber || STORE_CONFIG.whatsappNumber);
-  return sanitizedNumber ? `https://wa.me/${sanitizedNumber}` : '#';
-}
 
 function normalizeSettings(settings = {}) {
   const whatsappNumber = settings.whatsapp_number || settings.whatsappNumber || STORE_CONFIG.whatsappNumber;
@@ -28,7 +21,9 @@ function normalizeSettings(settings = {}) {
     instagramLink: settings.instagram || STORE_CONFIG.instagramLink,
     tiktokLink: settings.tiktok || STORE_CONFIG.tiktokLink,
     youtubeLink: settings.youtube || STORE_CONFIG.youtubeLink,
-    whatsappLink: buildWhatsAppLink(whatsappNumber),
+    whatsappLink: buildWhatsAppLink(whatsappNumber, STORE_CONFIG.whatsappNumber),
+    buy2Offer: normalizeBuy2Offer(settings),
+    loyalty: normalizeLoyaltySettings(settings),
   };
 }
 
@@ -43,7 +38,7 @@ function normalizeSocialLinks(links = [], settings) {
   }, {});
 
   return {
-    whatsapp: fromApi.whatsapp || settings.whatsappLink,
+    whatsapp: settings.whatsappLink || fromApi.whatsapp,
     facebook: fromApi.facebook || settings.facebookLink,
     instagram: fromApi.instagram || settings.instagramLink,
     tiktok: fromApi.tiktok || settings.tiktokLink,
@@ -106,8 +101,7 @@ export function StoreDataProvider({ children }) {
       error,
       refreshStoreData,
       getWhatsAppUrl: (message = '') => {
-        const baseUrl = buildWhatsAppLink(settings.whatsappNumber);
-        return message ? `${baseUrl}?text=${encodeURIComponent(message)}` : baseUrl;
+        return buildWhatsAppUrl(settings.whatsappNumber, message, STORE_CONFIG.whatsappNumber);
       },
     }),
     [error, isLoading, refreshStoreData, settings, socialLinks]

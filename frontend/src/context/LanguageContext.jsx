@@ -2,9 +2,15 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { STORE_CONFIG } from '../config/store.js';
 import ar from '../i18n/ar.js';
 import en from '../i18n/en.js';
+import fr from '../i18n/fr.js';
 
-const dictionaries = { ar, en };
-const supportedLanguages = Object.keys(dictionaries);
+const languageOptions = [
+  { value: 'ar', label: 'العربية', shortLabel: 'AR' },
+  { value: 'fr', label: 'Français', shortLabel: 'FR' },
+  { value: 'en', label: 'English', shortLabel: 'EN' },
+];
+const dictionaries = { ar, fr, en };
+const supportedLanguages = languageOptions.map((language) => language.value);
 const LanguageContext = createContext(null);
 
 function normalizeLanguage(language) {
@@ -13,7 +19,7 @@ function normalizeLanguage(language) {
 
 function getSavedLanguage() {
   try {
-    return normalizeLanguage(localStorage.getItem('najem-language') || STORE_CONFIG.defaultLanguage);
+    return normalizeLanguage(localStorage.getItem('maghrib-oud-language') || STORE_CONFIG.defaultLanguage);
   } catch {
     return STORE_CONFIG.defaultLanguage;
   }
@@ -44,7 +50,11 @@ export function LanguageProvider({ children }) {
     document.documentElement.lang = currentLanguage;
     document.documentElement.dir = direction;
     document.body.dir = direction;
-    localStorage.setItem('najem-language', currentLanguage);
+    document.documentElement.dataset.language = currentLanguage;
+    document.documentElement.dataset.textDirection = direction;
+    document.body.dataset.language = currentLanguage;
+    document.body.dataset.textDirection = direction;
+    localStorage.setItem('maghrib-oud-language', currentLanguage);
   }, [language]);
 
   const value = useMemo(() => {
@@ -57,8 +67,14 @@ export function LanguageProvider({ children }) {
     return {
       language: currentLanguage,
       direction: currentLanguage === 'ar' ? 'rtl' : 'ltr',
+      languageOptions,
       setLanguage: changeLanguage,
-      toggleLanguage: () => setLanguage((current) => (normalizeLanguage(current) === 'ar' ? 'en' : 'ar')),
+      toggleLanguage: () =>
+        setLanguage((current) => {
+          const currentIndex = supportedLanguages.indexOf(normalizeLanguage(current));
+          const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % supportedLanguages.length;
+          return supportedLanguages[nextIndex];
+        }),
       t: (path, fallback = path) => getValue(dictionary, path) ?? getValue(dictionaries.ar, path) ?? fallback,
     };
   }, [language]);

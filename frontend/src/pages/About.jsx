@@ -1,18 +1,20 @@
-import { Gem, MessageCircle, ShieldCheck, ShoppingBag } from 'lucide-react';
+import { BadgePercent, Gem, Gift, MessageCircle, Settings, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext.jsx';
 
 const valueIcons = [Gem, ShieldCheck, MessageCircle];
+const featureIcons = [Gift, BadgePercent, Settings];
 
 export default function About() {
   const { t } = useLanguage();
   const values = t('about.values', []);
+  const features = t('about.features', []);
 
   return (
     <section className="page-section about-compact-page">
       <div className="container about-compact-stack">
         <div className="about-compact-copy">
-          <span className="eyebrow">NAJEM STORE</span>
+          <span className="eyebrow">MAGHRIB OUD</span>
           <h1>{t('about.title')}</h1>
           <p>{t('about.intro')}</p>
         </div>
@@ -31,6 +33,20 @@ export default function About() {
                 <Icon size={24} aria-hidden="true" />
                 <h3>{value.title}</h3>
                 <p>{value.text}</p>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="about-compact-features">
+          {features.map((feature, index) => {
+            const Icon = featureIcons[index] || Gift;
+
+            return (
+              <article className="about-compact-card" key={feature.title}>
+                <Icon size={24} aria-hidden="true" />
+                <h3>{feature.title}</h3>
+                <p>{feature.text}</p>
               </article>
             );
           })}
