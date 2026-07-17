@@ -20,13 +20,17 @@ FROM php:8.3-apache
 ENV PORT=8080
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl libzip-dev unzip \
-    && docker-php-ext-install pdo_mysql zip opcache \
-    && (a2dismod mpm_event || true) \
-    && (a2dismod mpm_worker || true) \
-    && a2enmod mpm_prefork rewrite headers \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends curl libzip-dev unzip; \
+    docker-php-ext-install pdo_mysql zip opcache; \
+    a2dismod -f mpm_event || true; \
+    a2dismod -f mpm_worker || true; \
+    rm -f /etc/apache2/mods-enabled/mpm_event.load /etc/apache2/mods-enabled/mpm_event.conf; \
+    rm -f /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_worker.conf; \
+    a2enmod mpm_prefork rewrite headers; \
+    apache2ctl -M 2>/dev/null | grep mpm; \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
 
