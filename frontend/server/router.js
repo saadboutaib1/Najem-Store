@@ -1,3 +1,4 @@
+﻿import crypto from 'node:crypto';
 import {
   ApiRouteError,
   DEFAULT_SETTINGS,
@@ -20,7 +21,7 @@ import {
   upsertSettingsObject,
   upsertSocialLinksObject,
   verifyPassword,
-} from './_lib/supabase.js';
+} from './supabase.js';
 
 export const config = {
   api: {
@@ -279,20 +280,20 @@ function buildOrderMessage({ orderNumber, body, items, subtotal, deliveryFee, di
   });
 
   return [
-    `طلب جديد ${orderNumber}`,
-    `الاسم: ${body.customer_name}`,
-    `الهاتف: ${body.customer_phone}`,
-    `المدينة: ${body.city}`,
-    `العنوان: ${body.address}`,
-    body.notes ? `ملاحظات: ${body.notes}` : '',
+    `Ø·Ù„Ø¨ Ø¬Ø¯ÙŠØ¯ ${orderNumber}`,
+    `Ø§Ù„Ø§Ø³Ù…: ${body.customer_name}`,
+    `Ø§Ù„Ù‡Ø§ØªÙ: ${body.customer_phone}`,
+    `Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©: ${body.city}`,
+    `Ø§Ù„Ø¹Ù†ÙˆØ§Ù†: ${body.address}`,
+    body.notes ? `Ù…Ù„Ø§Ø­Ø¸Ø§Øª: ${body.notes}` : '',
     '',
-    'المنتجات:',
+    'Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª:',
     ...lines,
     '',
-    `المجموع الفرعي: ${subtotal} MAD`,
-    discountTotal > 0 ? `الخصم: -${discountTotal} MAD` : '',
-    `رسوم التوصيل: ${deliveryFee} MAD`,
-    `المجموع: ${total} MAD`,
+    `Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„ÙØ±Ø¹ÙŠ: ${subtotal} MAD`,
+    discountTotal > 0 ? `Ø§Ù„Ø®ØµÙ…: -${discountTotal} MAD` : '',
+    `Ø±Ø³ÙˆÙ… Ø§Ù„ØªÙˆØµÙŠÙ„: ${deliveryFee} MAD`,
+    `Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹: ${total} MAD`,
   ].filter(Boolean).join('\n');
 }
 
@@ -552,12 +553,61 @@ async function ensureBootstrapAdmin(email, password) {
   return data;
 }
 
+function normalizeEmail(value) {
+  return normalizeString(value).toLowerCase();
+}
+
+function safeEqual(left, right) {
+  const leftBuffer = Buffer.from(String(left || ''));
+  const rightBuffer = Buffer.from(String(right || ''));
+
+  if (leftBuffer.length !== rightBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function getConfiguredAdminCredentials() {
+  const email = normalizeEmail(process.env.ADMIN_EMAIL);
+  const password = String(process.env.ADMIN_PASSWORD || '');
+  const tokenSecret = String(process.env.ADMIN_TOKEN_SECRET || '');
+
+  if (!email || !password || !tokenSecret) {
+    return null;
+  }
+
+  return { email, password };
+}
+
 async function loginAdmin(body = {}) {
-  const email = normalizeString(body.email).toLowerCase();
+  const email = normalizeEmail(body.email);
   const password = String(body.password || '');
 
   if (!email || !password) {
     throw new ApiRouteError('Email and password are required.', 422);
+  }
+
+  const configuredAdmin = getConfiguredAdminCredentials();
+
+  if (configuredAdmin && safeEqual(email, configuredAdmin.email) && safeEqual(password, configuredAdmin.password)) {
+    const admin = {
+      id: 'env-admin',
+      name: 'MAGHRIB OUD Admin',
+      email: configuredAdmin.email,
+      role: 'admin',
+      status: 'active',
+      source: 'env',
+    };
+
+    return {
+      token: createAdminToken(admin),
+      admin: {
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      },
+    };
   }
 
   const supabase = getSupabaseAdmin();

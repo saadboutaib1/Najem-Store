@@ -2,10 +2,10 @@
 
 export { config };
 
-export default function featuredProducts(req, res) {
+export default function productsIndex(req, res) {
   req.query = {
     ...req.query,
-    path: ['products', 'featured'],
+    path: ['products'],
   };
 
   return handler(req, res);

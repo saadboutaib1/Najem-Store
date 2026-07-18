@@ -1,4 +1,4 @@
-import {
+﻿import {
   ApiRouteError,
   fail,
   formatProduct,
@@ -6,7 +6,7 @@ import {
   ok,
   requireMethod,
   sendJson,
-} from '../_lib/supabase.js';
+} from '../../server/supabase.js';
 
 const PRODUCT_SELECT = `
   *,

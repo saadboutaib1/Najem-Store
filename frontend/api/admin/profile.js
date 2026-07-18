@@ -1,4 +1,4 @@
-import {
+﻿import {
   ApiRouteError,
   fail,
   getSupabaseAdmin,
@@ -6,7 +6,7 @@ import {
   requireAdmin,
   requireMethod,
   sendJson,
-} from '../_lib/supabase.js';
+} from '../../server/supabase.js';
 
 function toPublicAdmin(admin = {}) {
   return {

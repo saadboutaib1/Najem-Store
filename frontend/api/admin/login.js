@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import {
   ApiRouteError,
   createAdminToken,
@@ -7,7 +7,7 @@ import {
   parseBody,
   requireMethod,
   sendJson,
-} from '../_lib/supabase.js';
+} from '../../server/supabase.js';
 
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();

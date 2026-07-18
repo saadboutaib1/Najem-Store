@@ -1,4 +1,4 @@
-import {
+﻿import {
   ApiRouteError,
   fail,
   getSupabaseAdmin,
@@ -7,7 +7,7 @@ import {
   requireMethod,
   sendJson,
   toNumber,
-} from '../_lib/supabase.js';
+} from '../../server/supabase.js';
 
 async function safeCount(supabase, table, filter = null) {
   let query = supabase.from(table).select('id', { count: 'exact', head: true });
