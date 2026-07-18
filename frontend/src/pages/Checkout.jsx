@@ -23,6 +23,64 @@ const initialForm = {
   notes: '',
 };
 
+function shouldOpenWhatsAppInCurrentTab() {
+  if (typeof window === 'undefined') return false;
+
+  return window.matchMedia('(max-width: 820px)').matches || navigator.maxTouchPoints > 0;
+}
+
+function openPendingWhatsAppTab() {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const popup = window.open('about:blank', '_blank');
+
+    if (!popup) return null;
+
+    popup.opener = null;
+    popup.document.title = 'WhatsApp';
+    popup.document.body.style.margin = '0';
+    popup.document.body.style.minHeight = '100vh';
+    popup.document.body.style.display = 'grid';
+    popup.document.body.style.placeItems = 'center';
+    popup.document.body.style.background = '#f7efe2';
+    popup.document.body.style.color = '#1f140d';
+    popup.document.body.style.fontFamily = 'system-ui, sans-serif';
+    popup.document.body.style.fontWeight = '700';
+    popup.document.body.textContent = 'Opening WhatsApp...';
+
+    return popup;
+  } catch {
+    return null;
+  }
+}
+
+function closePendingWhatsAppTab(popup) {
+  try {
+    if (popup && !popup.closed) {
+      popup.close();
+    }
+  } catch {
+    // The tab is already unavailable; no recovery is needed.
+  }
+}
+
+function openWhatsAppOrderUrl(whatsappUrl, popup, useCurrentTab) {
+  if (!useCurrentTab) {
+    try {
+      if (popup && !popup.closed) {
+        popup.location.href = whatsappUrl;
+        return true;
+      }
+    } catch {
+      // Fall back to same-tab navigation below.
+    }
+  }
+
+  window.location.assign(whatsappUrl);
+  return false;
+}
+
 export default function Checkout() {
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState('');
@@ -94,12 +152,15 @@ export default function Checkout() {
       return;
     }
 
+    const useCurrentTabForWhatsApp = shouldOpenWhatsAppInCurrentTab();
+    const pendingWhatsAppTab = useCurrentTabForWhatsApp ? null : openPendingWhatsAppTab();
     let checkoutItems = items;
 
     if (checkoutItems.some((item) => !getBackendProductId(item))) {
       const refreshResult = await refreshCartFromBackend();
 
       if (!refreshResult.success) {
+        closePendingWhatsAppTab(pendingWhatsAppTab);
         return;
       }
 
@@ -152,7 +213,7 @@ export default function Checkout() {
         loyaltyPointsEarned: Number(order.loyalty_points_earned ?? 0),
       };
 
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      const openedInSeparateTab = openWhatsAppOrderUrl(whatsappUrl, pendingWhatsAppTab, useCurrentTabForWhatsApp);
       try {
         sessionStorage.setItem('maghrib-oud-last-order', JSON.stringify(successState));
       } catch {
@@ -161,8 +222,12 @@ export default function Checkout() {
       clearCart();
       setForm(initialForm);
       showToast(t('checkout.orderSuccess'));
-      navigate('/order-success', { replace: true, state: successState });
+
+      if (openedInSeparateTab) {
+        navigate('/order-success', { replace: true, state: successState });
+      }
     } catch {
+      closePendingWhatsAppTab(pendingWhatsAppTab);
       setError(orderErrorMessage);
     } finally {
       setIsSubmitting(false);
