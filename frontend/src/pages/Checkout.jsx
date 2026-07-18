@@ -13,6 +13,7 @@ import { formatCurrency, getLocalizedField } from '../utils/formatters.js';
 import { calculateBuy2Discount, calculateLoyaltyPoints } from '../utils/promotions.js';
 import { isValidPhoneNumber } from '../utils/validation.js';
 import { createWhatsAppOrderUrl } from '../utils/whatsapp.js';
+import { buildWhatsAppUrl } from '../utils/whatsappLink.js';
 
 const initialForm = {
   fullName: '',
@@ -127,7 +128,10 @@ export default function Checkout() {
       const orderDeliveryFee = Number(order.delivery_fee ?? deliveryFee);
       const orderDiscountTotal = Number(order.discount_total ?? discountTotal);
       const orderTotal = Number(order.total ?? total);
-      const whatsappUrl = createWhatsAppOrderUrl({
+      const backendWhatsAppMessage = typeof order.whatsapp_message === 'string' ? order.whatsapp_message.trim() : '';
+      const whatsappUrl = backendWhatsAppMessage
+        ? buildWhatsAppUrl(settings.whatsappNumber, backendWhatsAppMessage)
+        : createWhatsAppOrderUrl({
         orderNumber,
         customer: form,
         items: checkoutItems,

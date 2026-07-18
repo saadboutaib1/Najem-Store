@@ -62,6 +62,31 @@ function formatDateTimeLocal(value) {
   return offsetDate.toISOString().slice(0, 16);
 }
 
+function getDateFromLocalValue(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function normalizeOfferDateFields(settings = {}) {
+  const startsAt = formatDateTimeLocal(settings.buy2_offer_starts_at);
+  const endsAt = formatDateTimeLocal(settings.buy2_offer_ends_at);
+  const startDate = getDateFromLocalValue(startsAt);
+  const endDate = getDateFromLocalValue(endsAt);
+
+  if (startDate && endDate && endDate < startDate) {
+    return { startsAt: endsAt, endsAt: startsAt };
+  }
+
+  return { startsAt, endsAt };
+}
+
+function hasInvalidOfferDateRange(form) {
+  const startDate = getDateFromLocalValue(form.buy2_offer_starts_at);
+  const endDate = getDateFromLocalValue(form.buy2_offer_ends_at);
+  return Boolean(startDate && endDate && endDate < startDate);
+}
+
 export default function AdminSettings() {
   const [form, setForm] = useState(emptySettingsForm);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +119,8 @@ export default function AdminSettings() {
         const linkMap = linksToMap(settingsResponse?.social_links || socialLinks || []);
 
         if (isMounted) {
+          const offerDates = normalizeOfferDateFields(settings);
+
           setForm({
             ...emptySettingsForm,
             ...settings,
@@ -103,8 +130,8 @@ export default function AdminSettings() {
             youtube: settings.youtube || linkMap.youtube || '',
             whatsapp: buildDashboardWhatsAppLink(settings.whatsapp_number || settings.whatsappNumber) || linkMap.whatsapp || '',
             buy2_offer_enabled: toBoolean(settings.buy2_offer_enabled),
-            buy2_offer_starts_at: formatDateTimeLocal(settings.buy2_offer_starts_at),
-            buy2_offer_ends_at: formatDateTimeLocal(settings.buy2_offer_ends_at),
+            buy2_offer_starts_at: offerDates.startsAt,
+            buy2_offer_ends_at: offerDates.endsAt,
             buy2_discount_type: settings.buy2_discount_type || 'percentage',
             buy2_discount_value: settings.buy2_discount_value ?? 10,
             loyalty_points_enabled: settings.loyalty_points_enabled === undefined ? true : toBoolean(settings.loyalty_points_enabled),
@@ -157,6 +184,11 @@ export default function AdminSettings() {
 
     if (form.buy2_offer_enabled && Number(form.buy2_discount_value || 0) <= 0) {
       setError(ta('settings.offerValidation'));
+      return;
+    }
+
+    if (form.buy2_offer_enabled && hasInvalidOfferDateRange(form)) {
+      setError(ta('settings.offerDateValidation'));
       return;
     }
 

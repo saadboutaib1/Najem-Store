@@ -89,11 +89,21 @@ function normalizeLoyalty(settings = {}) {
   };
 }
 
+function getOfferDateWindow(offer = {}) {
+  const startsAt = parseDateValue(offer.startsAt);
+  const endsAt = parseDateValue(offer.endsAt);
+
+  if (startsAt && endsAt && endsAt < startsAt) {
+    return { startsAt: endsAt, endsAt: startsAt };
+  }
+
+  return { startsAt, endsAt };
+}
+
 function isBuy2OfferActive(offer = {}) {
   if (!offer.enabled || offer.discountValue <= 0) return false;
   const now = new Date();
-  const startsAt = parseDateValue(offer.startsAt);
-  const endsAt = parseDateValue(offer.endsAt);
+  const { startsAt, endsAt } = getOfferDateWindow(offer);
 
   if (startsAt && startsAt > now) return false;
   if (endsAt && endsAt < now) return false;
@@ -381,19 +391,69 @@ function buildOrderMessage({ orderNumber, body, items, subtotal, deliveryFee, di
 }
 
 function repairMojibakeText(value) {
-  if (typeof value !== 'string' || !/[ØÙÃ]/.test(value)) return value;
+  if (typeof value !== 'string' || !/[ØÙÃÂ]/.test(value)) return value;
 
   try {
-    return Buffer.from(value, 'latin1').toString('utf8');
+    const repaired = Buffer.from(value, 'latin1').toString('utf8');
+    return repaired && repaired !== value ? repaired : value;
   } catch {
     return value;
   }
 }
 
-function formatOrder(order = {}) {
+function hasBrokenWhatsAppMessage(value) {
+  if (typeof value !== 'string') return false;
+  return value.includes('�') || /[ØÙÃÂ]{2,}/.test(value);
+}
+
+function rebuildOrderMessageFromRows(order = {}, items = []) {
+  if (!items.length) return repairMojibakeText(order.whatsapp_message || '');
+
+  const rebuiltItems = items.map((item) => ({
+    ...item,
+    product: {
+      id: item.product_id,
+      name_ar: item.product_name_ar,
+      name_en: item.product_name_en,
+      name_fr: item.product_name_fr,
+      slug: item.product_slug || '',
+    },
+    total_price: item.total_price,
+  }));
+
+  return buildOrderMessage({
+    orderNumber: order.order_number,
+    body: {
+      customer_name: order.customer_name,
+      customer_phone: order.customer_phone,
+      city: order.city,
+      address: order.address,
+      notes: order.notes,
+    },
+    items: rebuiltItems,
+    subtotal: order.subtotal,
+    deliveryFee: order.delivery_fee,
+    discountTotal: order.discount_total,
+    total: order.total,
+    language: order.language || 'ar',
+    currency: order.currency || DEFAULT_SETTINGS.currency,
+  });
+}
+
+function normalizeOrderWhatsAppMessage(order = {}, items = null) {
+  const repaired = repairMojibakeText(order.whatsapp_message || '');
+
+  if (!hasBrokenWhatsAppMessage(repaired)) {
+    return repaired;
+  }
+
+  return Array.isArray(items) ? rebuildOrderMessageFromRows(order, items) : repaired;
+}
+
+function formatOrder(order = {}, items = null) {
   return {
     ...order,
-    whatsapp_message: repairMojibakeText(order.whatsapp_message),
+    whatsapp_message: normalizeOrderWhatsAppMessage(order, items),
   };
 }
 
@@ -518,7 +578,7 @@ async function createOrder(body = {}) {
   }
 
   return {
-    ...formatOrder(order),
+    ...formatOrder(order, insertedItems || []),
     items: insertedItems || [],
   };
 }
@@ -545,7 +605,7 @@ async function getOrder(id) {
 
   if (itemsError) throw new ApiRouteError('Could not load order items.', 500);
 
-  return { ...formatOrder(order), items: items || [] };
+  return { ...formatOrder(order, items || []), items: items || [] };
 }
 
 async function awardLoyaltyPoints(order) {

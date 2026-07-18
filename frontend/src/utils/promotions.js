@@ -17,9 +17,28 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(number) ? number : fallback;
 }
 
+function parseDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getDateWindow(startsAt, endsAt) {
+  const startDate = parseDate(startsAt);
+  const endDate = parseDate(endsAt);
+
+  if (startDate && endDate && endDate < startDate) {
+    return { startsAt: endDate, endsAt: startDate };
+  }
+
+  return { startsAt: startDate, endsAt: endDate };
+}
+
 function isWithinDateRange(startsAt, endsAt, now = new Date()) {
-  if (startsAt && new Date(startsAt) > now) return false;
-  if (endsAt && new Date(endsAt) < now) return false;
+  const range = getDateWindow(startsAt, endsAt);
+
+  if (range.startsAt && range.startsAt > now) return false;
+  if (range.endsAt && range.endsAt < now) return false;
 
   return true;
 }

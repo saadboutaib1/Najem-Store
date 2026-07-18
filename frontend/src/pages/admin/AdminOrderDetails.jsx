@@ -263,7 +263,7 @@ export default function AdminOrderDetails() {
             }
           >
             {order.whatsapp_message ? (
-              <pre className="admin-message-box">{order.whatsapp_message}</pre>
+              <pre className="admin-message-box" dir="auto">{order.whatsapp_message}</pre>
             ) : (
               <p className="admin-muted-text">{ta('orders.noWhatsappMessage')}</p>
             )}
